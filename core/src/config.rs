@@ -2,28 +2,30 @@ use anyhow::{Context, Result};
 use config::{Config, File, FileFormat};
 use serde::Deserialize;
 
-use crate::sink::{email::EmailSink, google_chat::GoogleChatSink, slack::SlackSink, SinkNotifier};
+use crate::sink::{
+    email::EmailNotifier, google_chat::GoogleChatNotifier, slack::SlackNotifier, SinkNotifier,
+};
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct AppConfig {
     pub applications: Vec<Application>,
     pub notifiers: Vec<Notifier>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct Application {
     pub source: String,
     pub current_version: String,
-    pub notifier: Vec<String>, // List of notifier names
+    pub notifier: Vec<String>,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 pub struct Notifier {
     pub name: String,
     pub sink: Sink,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Clone)]
 #[serde(tag = "type")] // Use tag-based enum for sink type
 pub enum Sink {
     #[serde(rename = "slack")]
@@ -40,9 +42,9 @@ pub enum Sink {
 }
 
 impl Sink {
-    fn to_notifier(&self) -> Box<dyn SinkNotifier> {
+    pub fn to_notifier(&self) -> Box<dyn SinkNotifier> {
         match self {
-            Sink::Slack { webhook } => Box::new(SlackSink {
+            Sink::Slack { webhook } => Box::new(SlackNotifier {
                 webhook: webhook.clone(),
             }),
             Sink::Email {
@@ -50,13 +52,13 @@ impl Sink {
                 port,
                 username,
                 password,
-            } => Box::new(EmailSink {
+            } => Box::new(EmailNotifier {
                 host: host.clone(),
                 port: *port,
                 username: username.clone(),
                 password: password.clone(),
             }),
-            Sink::GoogleChat { webhook } => Box::new(GoogleChatSink {
+            Sink::GoogleChat { webhook } => Box::new(GoogleChatNotifier {
                 webhook: webhook.clone(),
             }),
         }
