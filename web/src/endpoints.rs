@@ -1,3 +1,5 @@
+use neveno_core::{checker, config::AppConfig};
+
 use axum::{
     extract::State,
     http::StatusCode,
@@ -5,8 +7,6 @@ use axum::{
     Json, Router,
 };
 use serde::{Deserialize, Serialize};
-
-use crate::{checker, config::AppConfig};
 
 pub async fn routes(config: AppConfig) {
     let app = Router::new()

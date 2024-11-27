@@ -1,0 +1,12 @@
+[package]
+name = "neveno-web"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+neveno-core = { path = "../core" }
+tokio = { version = "1.41.1", features = ["rt-multi-thread"] }
+clap = { version = "4.0", features = ["derive"] }
+anyhow = "1.0.93"
+axum = "0.7.9"
+serde = { version = "1.0", features = ["derive"] }

@@ -1,10 +1,7 @@
-use clap::Parser;
-use config::AppConfig;
-use endpoints::routes;
+use neveno_core::config::AppConfig;
 
-mod checker;
-mod config;
-mod endpoints;
+use anyhow::Result;
+use clap::Parser;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -14,9 +11,10 @@ struct Cli {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> Result<()> {
     let cli = Cli::parse();
     let config = AppConfig::load(&cli.config)?;
-    routes(config.clone()).await;
+    // checker::check(&config).await?;
+    println!("{:?}", config);
     Ok(())
 }
