@@ -2,19 +2,16 @@ use anyhow::Result;
 use reqwest::Client;
 use serde::Deserialize;
 
-use crate::config::{AppConfig, Application};
+use crate::config::Application;
 
-pub async fn check(config: &AppConfig) -> Result<String> {
+pub async fn check(app: &Application) -> Result<Option<String>> {
     let client = reqwest::Client::new();
-    let latest_version = get_latest_version(&config.applications[0], &client).await?;
+    let latest_version = get_latest_version(app, &client).await?;
 
-    if latest_version > config.applications[0].current_version {
-        Ok(format!(
-            "A new version of Keycloak is available: {}",
-            latest_version
-        ))
+    if latest_version > app.current_version {
+        Ok(Some(latest_version))
     } else {
-        Ok(String::from("You're using the latest version of Keycloak."))
+        Ok(None)
     }
 }
 
