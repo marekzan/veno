@@ -1,17 +1,22 @@
 use super::SinkNotifier;
 use anyhow::Result;
 
-pub struct EmailSink {
+#[derive(Debug)]
+pub struct EmailNotifier {
     pub host: String,
     pub port: u16,
     pub username: String,
     pub password: String,
 }
 
-impl SinkNotifier for EmailSink {
+impl SinkNotifier for EmailNotifier {
     fn send(&self, message: &str) -> Result<()> {
-        // Send a message to Google Chat
-        println!("Sending message to Google Chat: {}", message);
+        println!("Sending message as email: {}", message);
+        println!("with config: {:?}", self);
         Ok(())
+    }
+
+    fn type_name(&self) -> &str {
+        "Email"
     }
 }

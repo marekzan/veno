@@ -1,14 +1,18 @@
 use super::SinkNotifier;
 use anyhow::Result;
 
-pub struct SlackSink {
+pub struct SlackNotifier {
     pub webhook: String,
 }
 
-impl SinkNotifier for SlackSink {
+impl SinkNotifier for SlackNotifier {
     fn send(&self, message: &str) -> Result<()> {
-        // Send a message to Google Chat
-        println!("Sending message to Google Chat: {}", message);
+        println!("Sending message to Slack: {}", message);
+        println!("Webhook: {}", self.webhook);
         Ok(())
+    }
+
+    fn type_name(&self) -> &str {
+        "Slack"
     }
 }
