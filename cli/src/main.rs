@@ -18,7 +18,7 @@ async fn main() -> Result<()> {
     let cli = Cli::parse();
     let config = AppConfig::load(&cli.config)?;
 
-    let notifiers: HashMap<String, Box<dyn SinkNotifier>> = config
+    let notifiers: HashMap<String, Box<dyn SinkNotifier<Output = String>>> = config
         .notifiers
         .into_iter()
         .map(|notifier| (notifier.name, notifier.sink.to_notifier()))
@@ -26,15 +26,12 @@ async fn main() -> Result<()> {
 
     for app in &config.applications {
         if let Some(latest_version) = checker::check(app).await? {
-            app.notifier
-                .iter()
-                .try_for_each(|notifier_name| -> Result<()> {
-                    if let Some(notifier) = notifiers.get(notifier_name) {
-                        println!("Sending notification to {}", notifier_name);
-                        notifier.send(&latest_version)?;
-                    }
-                    Ok(())
-                })?;
+            for notifier_name in &app.notifier {
+                if let Some(notifier) = notifiers.get(notifier_name) {
+                    let response = notifier.send(&latest_version).await;
+                    println!("Notifier response: {:?}", response);
+                }
+            }
         }
     }
     Ok(())
