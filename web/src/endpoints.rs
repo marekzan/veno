@@ -7,7 +7,7 @@ use axum::{extract::State, routing::get, Router};
 pub async fn routes(config: AppConfig) {
     let shared_config = Arc::new(config);
     let app = Router::new()
-        .route("/check", get(root))
+        .route("/check", get(check))
         // .route("/users", post(create_user))
         .with_state(shared_config);
 
@@ -16,8 +16,8 @@ pub async fn routes(config: AppConfig) {
 }
 
 // basic handler that responds with a static string
-async fn root(State(config): State<Arc<AppConfig>>) -> String {
-    let notifiers: HashMap<String, Box<dyn SinkNotifier>> = config
+async fn check(State(config): State<Arc<AppConfig>>) -> String {
+    let notifiers: HashMap<String, Box<dyn SinkNotifier<Output = String>>> = config
         .notifiers
         .iter()
         .map(|notifier| (notifier.name.clone(), notifier.sink.to_notifier()))
@@ -30,17 +30,17 @@ async fn root(State(config): State<Arc<AppConfig>>) -> String {
             return "Error checking for updates".to_string();
         };
 
-        app.notifier.iter().for_each(|notifier_name| {
+        for notifier_name in &app.notifier {
             if let Some(notifier) = notifiers.get(notifier_name) {
                 println!("Sending notification to {}", notifier_name);
-                match notifier.send(&latest_version) {
+                match notifier.send(&latest_version).await {
                     Ok(_) => result.push_str(&format!("Sent notification to {}\n", notifier_name)),
                     Err(e) => {
                         result.push_str(format!("Error sending notification: {}", e).as_str());
                     }
                 }
             }
-        });
+        }
     }
     result
 }
@@ -73,4 +73,3 @@ async fn root(State(config): State<Arc<AppConfig>>) -> String {
 //     id: u64,
 //     username: String,
 // }
-
