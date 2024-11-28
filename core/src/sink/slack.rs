@@ -1,18 +1,39 @@
-use super::SinkNotifier;
 use anyhow::Result;
+use serde::Serialize;
+use std::{future::Future, pin::Pin};
+
+use super::SinkNotifier;
 
 pub struct SlackNotifier {
     pub webhook: String,
 }
 
-impl SinkNotifier for SlackNotifier {
-    fn send(&self, message: &str) -> Result<()> {
-        println!("Sending message to Slack: {}", message);
-        println!("Webhook: {}", self.webhook);
-        Ok(())
-    }
+#[derive(Serialize)]
+struct Payload {
+    text: String,
+}
 
-    fn type_name(&self) -> &str {
-        "Slack"
+impl SinkNotifier for SlackNotifier {
+    type Output = String;
+    fn send<'a>(
+        &'a self,
+        message: &'a str,
+    ) -> Pin<Box<dyn Future<Output = Result<Self::Output>> + Send + 'a>> {
+        Box::pin(async move {
+            let client = reqwest::Client::new();
+            let payload = Payload {
+                text: message.to_string(),
+            };
+
+            let payload = serde_json::to_string(&payload)?;
+
+            let response = client
+                .post(&self.webhook)
+                .header("Content-Type", "application/json")
+                .json(&payload)
+                .send()
+                .await?;
+            Ok(response.text().await?)
+        })
     }
 }

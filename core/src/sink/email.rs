@@ -1,5 +1,7 @@
-use super::SinkNotifier;
 use anyhow::Result;
+use std::{future::Future, pin::Pin};
+
+use super::SinkNotifier;
 
 #[derive(Debug)]
 pub struct EmailNotifier {
@@ -10,13 +12,12 @@ pub struct EmailNotifier {
 }
 
 impl SinkNotifier for EmailNotifier {
-    fn send(&self, message: &str) -> Result<()> {
-        println!("Sending message as email: {}", message);
-        println!("with config: {:?}", self);
-        Ok(())
-    }
+    type Output = String;
 
-    fn type_name(&self) -> &str {
-        "Email"
+    fn send<'a>(
+        &'a self,
+        message: &'a str,
+    ) -> Pin<Box<dyn Future<Output = Result<Self::Output>> + Send + 'a>> {
+        Box::pin(async move { Ok(format!("Email sent: {}", message)) })
     }
 }
