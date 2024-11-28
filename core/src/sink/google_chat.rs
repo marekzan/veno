@@ -1,5 +1,5 @@
 use anyhow::Result;
-use serde::Serialize;
+use serde_json::json;
 use std::{future::Future, pin::Pin};
 
 use super::SinkNotifier;
@@ -8,10 +8,10 @@ pub struct GoogleChatNotifier {
     pub webhook: String,
 }
 
-#[derive(Serialize)]
-struct Payload {
-    text: String,
-}
+// #[derive(Serialize)]
+// struct Payload {
+//     text: String,
+// }
 
 impl SinkNotifier for GoogleChatNotifier {
     type Output = String;
@@ -21,11 +21,14 @@ impl SinkNotifier for GoogleChatNotifier {
     ) -> Pin<Box<dyn Future<Output = Result<Self::Output>> + Send + 'a>> {
         Box::pin(async move {
             let client = reqwest::Client::new();
-            let payload = Payload {
-                text: message.to_string(),
-            };
+            // let payload = Payload {
+            //     text: message.to_string(),
+            // };
 
-            let payload = serde_json::to_string(&payload)?;
+            // let payload = serde_json::to_string(&payload)?;
+            let payload = json!({
+                "text:": message.to_string(),
+            });
 
             let response = client
                 .post(&self.webhook)
