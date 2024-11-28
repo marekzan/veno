@@ -24,9 +24,9 @@ async fn main() -> Result<()> {
         .map(|notifier| (notifier.name, notifier.sink.to_notifier()))
         .collect();
 
-    for app in &config.applications {
-        if let Some(latest_version) = checker::check(app).await? {
-            for notifier_name in &app.notifier {
+    for artifact in &config.artifacts {
+        if let Some(latest_version) = checker::check(artifact).await? {
+            for notifier_name in &artifact.notifier {
                 if let Some(notifier) = notifiers.get(notifier_name) {
                     let response = notifier.send(&latest_version).await;
                     println!("Notifier response: {:?}", response);

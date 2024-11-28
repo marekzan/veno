@@ -25,12 +25,12 @@ async fn check(State(config): State<Arc<AppConfig>>) -> String {
 
     let mut result = String::new();
 
-    for app in &config.applications {
-        let Ok(Some(latest_version)) = checker::check(app).await else {
+    for artifact in &config.artifacts {
+        let Ok(Some(latest_version)) = checker::check(artifact).await else {
             return "Error checking for updates".to_string();
         };
 
-        for notifier_name in &app.notifier {
+        for notifier_name in &artifact.notifier {
             if let Some(notifier) = notifiers.get(notifier_name) {
                 println!("Sending notification to {}", notifier_name);
                 match notifier.send(&latest_version).await {

@@ -6,12 +6,12 @@ use crate::sink::Sink;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct AppConfig {
-    pub applications: Vec<Application>,
+    pub artifacts: Vec<Artifact>,
     pub notifiers: Vec<Notifier>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
-pub struct Application {
+pub struct Artifact {
     pub source: String,
     pub current_version: String,
     pub notifier: Vec<String>,

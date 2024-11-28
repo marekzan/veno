@@ -2,22 +2,22 @@ use anyhow::Result;
 use reqwest::Client;
 use serde::Deserialize;
 
-use crate::config::Application;
+use crate::config::Artifact;
 
-pub async fn check(app: &Application) -> Result<Option<String>> {
+pub async fn check(artifact: &Artifact) -> Result<Option<String>> {
     let client = reqwest::Client::new();
-    let latest_version = get_latest_version(app, &client).await?;
+    let latest_version = get_latest_version(artifact, &client).await?;
 
-    if latest_version > app.current_version {
+    if latest_version > artifact.current_version {
         Ok(Some(latest_version))
     } else {
         Ok(None)
     }
 }
 
-async fn get_latest_version(app: &Application, client: &Client) -> Result<String> {
+async fn get_latest_version(artifact: &Artifact, client: &Client) -> Result<String> {
     let response = client
-        .get(&app.source)
+        .get(&artifact.source)
         .header("User-Agent", "neveno-checker")
         .send()
         .await?;
