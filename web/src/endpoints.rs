@@ -1,6 +1,6 @@
 use std::{collections::HashMap, sync::Arc};
 
-use neveno_core::{checker, config::AppConfig, sink::SinkNotifier};
+use neveno_core::{config::AppConfig, sink::SinkNotifier, source::checker};
 
 use axum::{extract::State, routing::get, Router};
 

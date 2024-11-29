@@ -1,12 +1,12 @@
+use std::time::Duration;
+
 use anyhow::Result;
-use reqwest::Client;
 use serde::Deserialize;
 
-use crate::config::Artifact;
+use crate::{source::Artifact, CLIENT};
 
 pub async fn check(artifact: &Artifact) -> Result<Option<String>> {
-    let client = reqwest::Client::new();
-    let latest_version = get_latest_version(artifact, &client).await?;
+    let latest_version = get_latest_version(artifact).await?;
 
     if latest_version > artifact.current_version {
         Ok(Some(latest_version))
@@ -15,10 +15,11 @@ pub async fn check(artifact: &Artifact) -> Result<Option<String>> {
     }
 }
 
-async fn get_latest_version(artifact: &Artifact, client: &Client) -> Result<String> {
-    let response = client
+async fn get_latest_version(artifact: &Artifact) -> Result<String> {
+    let response = CLIENT
         .get(&artifact.source)
-        .header("User-Agent", "neveno-checker")
+        .header("User-Agent", "neveno")
+        .timeout(Duration::from_secs(10))
         .send()
         .await?;
 

@@ -2,19 +2,12 @@ use anyhow::{Context, Result};
 use config::{Config, File, FileFormat};
 use serde::Deserialize;
 
-use crate::sink::Sink;
+use crate::{sink::Sink, source::Artifact};
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct AppConfig {
     pub artifacts: Vec<Artifact>,
     pub notifiers: Vec<Notifier>,
-}
-
-#[derive(Deserialize, Debug, Clone)]
-pub struct Artifact {
-    pub source: String,
-    pub current_version: String,
-    pub notifier: Vec<String>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
