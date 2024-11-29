@@ -2,6 +2,8 @@ use anyhow::Result;
 use serde_json::json;
 use std::{future::Future, pin::Pin};
 
+use crate::CLIENT;
+
 use super::SinkNotifier;
 
 pub struct SlackNotifier {
@@ -20,7 +22,6 @@ impl SinkNotifier for SlackNotifier {
         message: &'a str,
     ) -> Pin<Box<dyn Future<Output = Result<Self::Output>> + Send + 'a>> {
         Box::pin(async move {
-            let client = reqwest::Client::new();
             // let payload = Payload {
             //     text: message.to_string(),
             // };
@@ -31,7 +32,7 @@ impl SinkNotifier for SlackNotifier {
 
             println!("Sending payload: {}", payload);
 
-            let response = client
+            let response = CLIENT
                 .post(&self.webhook)
                 .header("Content-Type", "application/json")
                 .json(&payload)
