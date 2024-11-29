@@ -1,12 +1,14 @@
 use anyhow::Result;
+use serde::Deserialize;
 use serde_json::json;
 use std::{future::Future, pin::Pin};
 
 use crate::CLIENT;
 
-use super::SinkNotifier;
+use super::SinkSender;
 
-pub struct GoogleChatNotifier {
+#[derive(Debug, Clone, Deserialize)]
+pub struct GoogleChatSink {
     pub webhook: String,
 }
 
@@ -15,7 +17,7 @@ pub struct GoogleChatNotifier {
 //     text: String,
 // }
 
-impl SinkNotifier for GoogleChatNotifier {
+impl SinkSender for GoogleChatSink {
     type Output = String;
     fn send<'a>(
         &'a self,

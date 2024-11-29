@@ -1,12 +1,14 @@
 use anyhow::Result;
+use serde::Deserialize;
 use serde_json::json;
 use std::{future::Future, pin::Pin};
 
 use crate::CLIENT;
 
-use super::SinkNotifier;
+use super::SinkSender;
 
-pub struct SlackNotifier {
+#[derive(Debug, Clone, Deserialize)]
+pub struct SlackSink {
     pub webhook: String,
 }
 
@@ -15,7 +17,7 @@ pub struct SlackNotifier {
 //     text: String,
 // }
 
-impl SinkNotifier for SlackNotifier {
+impl SinkSender for SlackSink {
     type Output = String;
     fn send<'a>(
         &'a self,

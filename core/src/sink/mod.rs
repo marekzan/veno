@@ -1,8 +1,8 @@
 use anyhow::Result;
-use email::EmailNotifier;
-use google_chat::GoogleChatNotifier;
+use email::EmailSink;
+use google_chat::GoogleChatSink;
 use serde::Deserialize;
-use slack::SlackNotifier;
+use slack::SlackSink;
 use std::{future::Future, pin::Pin};
 
 pub mod email;
@@ -15,43 +15,24 @@ static DEFAULT_MESSAGE_PREFIX: &str = "New version available for";
 #[serde(tag = "type")] // Use tag-based enum for sink type
 pub enum Sink {
     #[serde(rename = "slack")]
-    Slack { webhook: String },
+    Slack(SlackSink),
     #[serde(rename = "email")]
-    Email {
-        host: String,
-        port: u16,
-        username: String,
-        password: String,
-    },
+    Email(EmailSink),
     #[serde(rename = "google_chat")]
-    GoogleChat { webhook: String },
+    GoogleChat(GoogleChatSink),
 }
 
 impl Sink {
-    pub fn to_notifier(&self) -> Box<dyn SinkNotifier<Output = String>> {
+    pub fn get(&self) -> Box<dyn SinkSender<Output = String>> {
         match self {
-            Sink::Slack { webhook } => Box::new(SlackNotifier {
-                webhook: webhook.clone(),
-            }),
-            Sink::Email {
-                host,
-                port,
-                username,
-                password,
-            } => Box::new(EmailNotifier {
-                host: host.clone(),
-                port: *port,
-                username: username.clone(),
-                password: password.clone(),
-            }),
-            Sink::GoogleChat { webhook } => Box::new(GoogleChatNotifier {
-                webhook: webhook.clone(),
-            }),
+            Sink::Slack(sender) => Box::new(sender.clone()),
+            Sink::Email(sender) => Box::new(sender.clone()),
+            Sink::GoogleChat(sender) => Box::new(sender.clone()),
         }
     }
 }
 
-pub trait SinkNotifier: Send + Sync {
+pub trait SinkSender: Send + Sync {
     type Output;
     fn send<'a>(
         &'a self,

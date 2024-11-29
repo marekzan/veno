@@ -1,17 +1,18 @@
 use anyhow::Result;
+use serde::Deserialize;
 use std::{future::Future, pin::Pin};
 
-use super::SinkNotifier;
+use super::SinkSender;
 
-#[derive(Debug)]
-pub struct EmailNotifier {
+#[derive(Deserialize, Clone, Debug)]
+pub struct EmailSink {
     pub host: String,
     pub port: u16,
     pub username: String,
     pub password: String,
 }
 
-impl SinkNotifier for EmailNotifier {
+impl SinkSender for EmailSink {
     type Output = String;
 
     fn send<'a>(
