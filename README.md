@@ -154,10 +154,12 @@ Here's a sample `config.json`:
 
 ### Planned Features:
 
-- More sources: GitLab, Bitbucket, etc.
+- More sources: GitLab, Bitbucket, Docker Hub, Artifacthub, etc.
 - Additional sinks: Microsoft Teams, Rocket Chat, etc.
 - Scheduling for periodic checks
 - update the current_version field in the configuration file automatically
+- Web endpoint to silence notifications for a specific artifact
+- and many more
 
 ## Contributing
 
