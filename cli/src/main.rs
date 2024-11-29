@@ -1,7 +1,10 @@
-use neveno_core::sink::SinkNotifier;
+use neveno_core::{
+    sink::{create_custom_message, create_default_message, SinkNotifier},
+    source::checker,
+};
 use std::collections::HashMap;
 
-use neveno_core::{checker, config::AppConfig};
+use neveno_core::config::AppConfig;
 
 use anyhow::Result;
 use clap::Parser;
@@ -28,7 +31,17 @@ async fn main() -> Result<()> {
         if let Some(latest_version) = checker::check(artifact).await? {
             for notifier_name in &artifact.notifier {
                 if let Some(notifier) = notifiers.get(notifier_name) {
-                    let response = notifier.send(&latest_version).await;
+                    let response = match &artifact.message_prefix {
+                        Some(prefix) => {
+                            let message =
+                                create_custom_message(prefix, &artifact.name, &latest_version);
+                            notifier.send(&message).await
+                        }
+                        None => {
+                            let message = create_default_message(&artifact.name, &latest_version);
+                            notifier.send(&message).await
+                        }
+                    };
                     println!("Notifier response: {:?}", response);
                 }
             }

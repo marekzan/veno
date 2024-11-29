@@ -9,6 +9,8 @@ pub mod email;
 pub mod google_chat;
 pub mod slack;
 
+static DEFAULT_MESSAGE_PREFIX: &str = "New version available for";
+
 #[derive(Deserialize, Debug, Clone)]
 #[serde(tag = "type")] // Use tag-based enum for sink type
 pub enum Sink {
@@ -55,4 +57,15 @@ pub trait SinkNotifier: Send + Sync {
         &'a self,
         message: &'a str,
     ) -> Pin<Box<dyn Future<Output = Result<Self::Output>> + Send + 'a>>;
+}
+
+pub fn create_default_message(artifact_name: &str, latest_version: &str) -> String {
+    format!(
+        "{} {}: {}",
+        DEFAULT_MESSAGE_PREFIX, artifact_name, latest_version
+    )
+}
+
+pub fn create_custom_message(prefix: &str, artifact_name: &str, latest_version: &str) -> String {
+    format!("{} {}: {}", prefix, artifact_name, latest_version)
 }
