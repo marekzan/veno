@@ -19,12 +19,11 @@ pub async fn routes(config: AppConfig) {
 async fn check(State(config): State<Arc<AppConfig>>) -> String {
     let mut result = String::new();
 
-    for artifact in &config.artifacts {
-        if let Some(latest_version) = artifact.check_version().await.unwrap() {
-            artifact.send(&latest_version).await.unwrap();
-            result.push_str(&format!("{}: {}\n", artifact.name, latest_version));
-        }
-    }
+    let response = match config.check_artifacts().await {
+        Ok(response) => response,
+        Err(e) => format!("Error: {}", e),
+    };
+    result.push_str(&response);
     result
 }
 
