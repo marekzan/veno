@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use neveno_core::config::AppConfig;
 
-use axum::{extract::State, routing::get, Router};
+use axum::{extract::State, http::StatusCode, response::IntoResponse, routing::get, Router};
 
 pub async fn routes(config: AppConfig) {
     let shared_config = Arc::new(config);
@@ -16,15 +16,17 @@ pub async fn routes(config: AppConfig) {
 }
 
 // basic handler that responds with a static string
-async fn check(State(config): State<Arc<AppConfig>>) -> String {
-    let mut result = String::new();
-
-    let response = match config.check_artifacts().await {
-        Ok(response) => response,
-        Err(e) => format!("Error: {}", e),
-    };
-    result.push_str(&response);
-    result
+async fn check(State(config): State<Arc<AppConfig>>) -> impl IntoResponse {
+    match config.check_artifacts().await {
+        Ok(response) => (StatusCode::OK, response),
+        Err(e) => {
+            println!("Error: {}", e);
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                String::from("Internal Server Error"),
+            )
+        }
+    }
 }
 
 // async fn create_user(
