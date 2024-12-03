@@ -12,6 +12,12 @@ pub mod slack;
 static DEFAULT_MESSAGE_PREFIX: &str = "New version available for";
 
 #[derive(Deserialize, Debug, Clone)]
+pub struct Notifier {
+    pub name: String,
+    pub sink: Sink,
+}
+
+#[derive(Deserialize, Debug, Clone)]
 #[serde(tag = "type")] // Use tag-based enum for sink type
 pub enum Sink {
     #[serde(rename = "slack")]

@@ -10,12 +10,6 @@ pub struct AppConfig {
     pub notifiers: Vec<Notifier>,
 }
 
-#[derive(Deserialize, Debug, Clone)]
-pub struct Notifier {
-    pub name: String,
-    pub sink: Sink,
-}
-
 impl AppConfig {
     pub fn load(file_path: &str) -> Result<Self> {
         let config = Config::builder()

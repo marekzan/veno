@@ -21,7 +21,7 @@ impl Artifact {
         checker::check(self).await
     }
 
-    pub async fn send(&self, latest_version: &str) -> Result<()> {
+    pub async fn notify(&self, latest_version: &str) -> Result<()> {
         for sink in &self.sink {
             match &self.message_prefix {
                 Some(prefix) => {
