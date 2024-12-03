@@ -1,13 +1,13 @@
+pub mod email;
+pub mod google_chat;
+pub mod slack;
+
 use anyhow::Result;
 use email::EmailSink;
 use google_chat::GoogleChatSink;
 use serde::Deserialize;
 use slack::SlackSink;
 use std::{future::Future, pin::Pin};
-
-pub mod email;
-pub mod google_chat;
-pub mod slack;
 
 static DEFAULT_MESSAGE_PREFIX: &str = "New version available for";
 
@@ -29,7 +29,7 @@ pub enum Sink {
 }
 
 impl Sink {
-    pub fn get(&self) -> Box<dyn SinkSender<Output = String>> {
+    pub fn unwrap(&self) -> Box<dyn SinkSender> {
         match self {
             Sink::Slack(sender) => Box::new(sender.clone()),
             Sink::Email(sender) => Box::new(sender.clone()),
@@ -38,12 +38,13 @@ impl Sink {
     }
 }
 
+// Send + Sync is required for Axum Handler
 pub trait SinkSender: Send + Sync {
-    type Output;
     fn send<'a>(
         &'a self,
         message: &'a str,
-    ) -> Pin<Box<dyn Future<Output = Result<Self::Output>> + Send + 'a>>;
+        // This is needed to allow async methods in the trait
+    ) -> Pin<Box<dyn Future<Output = Result<String>> + Send + Sync + 'a>>;
 }
 
 pub fn create_default_message(artifact_name: &str, latest_version: &str) -> String {

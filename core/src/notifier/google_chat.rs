@@ -18,11 +18,10 @@ pub struct GoogleChatSink {
 // }
 
 impl SinkSender for GoogleChatSink {
-    type Output = String;
     fn send<'a>(
         &'a self,
         message: &'a str,
-    ) -> Pin<Box<dyn Future<Output = Result<Self::Output>> + Send + 'a>> {
+    ) -> Pin<Box<dyn Future<Output = Result<String>> + Send + Sync + 'a>> {
         Box::pin(async move {
             // let payload = Payload {
             //     text: message.to_string(),

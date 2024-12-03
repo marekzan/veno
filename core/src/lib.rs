@@ -1,9 +1,9 @@
+pub mod artifact;
+pub mod config;
+pub mod notifier;
+
 use once_cell::sync::Lazy;
 use reqwest::{Client, ClientBuilder};
-
-pub mod config;
-pub mod sink;
-pub mod source;
 
 pub static CLIENT: Lazy<Client> = Lazy::new(|| {
     ClientBuilder::new()

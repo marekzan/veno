@@ -2,7 +2,7 @@ use anyhow::{Context, Result};
 use config::{Config, File, FileFormat};
 use serde::{Deserialize, Serialize};
 
-use crate::{sink::Sink, source::Artifact};
+use crate::{artifact::Artifact, notifier::Notifier};
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct AppConfig {
@@ -41,7 +41,7 @@ impl AppConfig {
     pub async fn check_artifacts(&self) -> Result<String> {
         let mut new_versions = Vec::new();
         for artifact in &self.artifacts {
-            if let Ok(Some(latest_version)) = artifact.check_version().await {
+            if let Ok(Some(latest_version)) = artifact.is_version_behind().await {
                 new_versions.push(CheckedArtifact {
                     name: artifact.name.clone(),
                     current_version: artifact.current_version.clone(),

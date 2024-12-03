@@ -19,9 +19,7 @@ async fn main() -> Result<()> {
     println!("{}", new_versions);
 
     for artifact in &config.artifacts {
-        if let Some(latest_version) = artifact.check_version().await? {
-            artifact.notify(&latest_version).await?;
-        };
+        artifact.notify_on_latest_version().await?;
     }
     Ok(())
 }

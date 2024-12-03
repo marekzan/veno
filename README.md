@@ -16,13 +16,24 @@ An artifact is any (GitHub) repository that uses tags to assign versions to its 
 {
   "artifacts": [
     {
-      "source": "https://api.github.com/repos/${username}/${repo_name}/releases/latest",
-      "current_version": "23.0.6",
+      "name": "Rust",
+      "message_prefix": "There is a new version of:", // optional
+      "current_version": "1.83.0",
+      "source": {
+        "type": "github",
+        "repo": "rust-lang/rust"
+      },
       "notifier": ["team_slack"]
     }
   ]
 }
 ```
+
+#### Source
+
+A source specifies where Neveno should look for new versions. Currently, we support the following sources:
+
+- **GitHub**
 
 ### Notifiers
 
@@ -107,8 +118,13 @@ Here's a sample `config.json`:
 {
   "artifacts": [
     {
-      "source": "https://api.github.com/repos/${username}/${repo_name}/releases/latest",
-      "current_version": "23.0.6",
+      "name": "Rust",
+      "message_prefix": "There is a new version of:", // optional
+      "source": {
+        "type": "github",
+        "repo": "rust-lang/rust"
+      },
+      "current_version": "1.83.0",
       "notifier": ["team_slack", "private_email"]
     }
   ],
@@ -145,20 +161,25 @@ Here's a sample `config.json`:
 
 ### What’s Working:
 
+- **Modes**: CLI
 - **Sources**: GitHub
 - **Sinks**: Slack, Google Chat
 
 ### In Progress:
 
+- Refactoring the codebase
 - Email as a sink
 
 ### Planned Features:
 
+- Allow environment variables in the configuration file (e.g., `${password}`) for sensitive data
 - More sources: GitLab, Bitbucket, Docker Hub, Artifacthub, etc.
 - Additional sinks: Microsoft Teams, Rocket Chat, etc.
 - Scheduling for periodic checks
 - update the current_version field in the configuration file automatically
 - Web endpoint to silence notifications for a specific artifact
+- make notifiers have references to artifacts so that only one message is being sent to the sink for multiple artifacts
+- include alpha, beta, and release candidate versions and allow users to specify which versions to track
 - and many more
 
 ## Contributing
