@@ -1,5 +1,5 @@
 use anyhow::Result;
-use neveno_core::config::AppConfig;
+use veno_core::config::AppConfig;
 
 use clap::Parser;
 use endpoints::routes;

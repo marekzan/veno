@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use neveno_core::config::AppConfig;
+use veno_core::config::AppConfig;
 
 use axum::{extract::State, http::StatusCode, response::IntoResponse, routing::get, Router};
 

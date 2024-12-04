@@ -987,41 +987,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "neveno-cli"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "clap",
- "neveno-core",
- "tokio",
-]
-
-[[package]]
-name = "neveno-core"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "config",
- "once_cell",
- "reqwest",
- "serde",
- "serde_derive",
- "serde_json",
-]
-
-[[package]]
-name = "neveno-web"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum",
- "clap",
- "neveno-core",
- "serde",
- "tokio",
-]
-
-[[package]]
 name = "nom"
 version = "7.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1827,6 +1792,41 @@ name = "vcpkg"
 version = "0.2.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "accd4ea62f7bb7a82fe23066fb0957d48ef677f6eeb8215f372f52e48bb32426"
+
+[[package]]
+name = "veno-cli"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "tokio",
+ "veno-core",
+]
+
+[[package]]
+name = "veno-core"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "config",
+ "once_cell",
+ "reqwest",
+ "serde",
+ "serde_derive",
+ "serde_json",
+]
+
+[[package]]
+name = "veno-web"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "clap",
+ "serde",
+ "tokio",
+ "veno-core",
+]
 
 [[package]]
 name = "version_check"

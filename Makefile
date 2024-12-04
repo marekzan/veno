@@ -13,12 +13,12 @@ build: ## Build the CLI and Web crates
 .PHONY: cli
 cli: ## Run the CLI crate with cargo run and the --config flag
 	@echo "Running CLI crate"
-	$(CARGO) run -p neveno-cli -- --config $(CONFIG_FILE)
+	$(CARGO) run -p veno-cli -- --config $(CONFIG_FILE)
 
 .PHONY: web
 web: ## Run the Web crate with cargo run and the --config flag
 	@echo "Running Web crate"
-	$(CARGO) run -p neveno-web -- --config $(CONFIG_FILE)
+	$(CARGO) run -p veno-web -- --config $(CONFIG_FILE)
 
 .PHONY: help
 help: ## Display this help message

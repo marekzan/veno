@@ -1,8 +1,8 @@
-# Neveno
+# Veno
 
-**NE**w **VE**rsion **NO**tifier
+**VE**rsion **NO**tifier
 
-If you need to regularly track and update your 3rd-party artifacts, Neveno might be just what you need. With Neveno, you can define artifacts and attach multiple notifiers to them. Neveno will notify you whenever new versions of your artifacts are available.
+If you need to regularly track and update your 3rd-party artifacts, Veno might be just what you need. With Veno, you can define artifacts and attach multiple notifiers to them. Veno will notify you whenever new versions of your artifacts are available.
 
 ## Description
 
@@ -31,7 +31,7 @@ An artifact is any (GitHub) repository that uses tags to assign versions to its 
 
 #### Source
 
-A source specifies where Neveno should look for new versions. Currently, we support the following sources:
+A source specifies where Veno should look for new versions. Currently, we support the following sources:
 
 - **GitHub**
 
@@ -100,7 +100,7 @@ Here’s an example of a notifier configuration:
 
 ## Usage
 
-Neveno can be operated in two modes:
+Veno can be operated in two modes:
 
 1. **CLI**  
    The CLI mode executes a single operation each time it is run.
