@@ -11,3 +11,8 @@ pub static CLIENT: Lazy<Client> = Lazy::new(|| {
         .build()
         .expect("Could not create reqwest client")
 });
+
+pub fn pretty_json(body: &str) -> String {
+    let json: serde_json::Value = serde_json::from_str(body).unwrap();
+    serde_json::to_string_pretty(&json).unwrap()
+}
