@@ -1,7 +1,5 @@
-use anyhow::Result;
 use serde::Deserialize;
 use serde_json::json;
-use std::{future::Future, pin::Pin};
 
 use crate::CLIENT;
 
@@ -18,27 +16,22 @@ pub struct GoogleChatSink {
 // }
 
 impl SinkSender for GoogleChatSink {
-    fn send<'a>(
-        &'a self,
-        message: &'a str,
-    ) -> Pin<Box<dyn Future<Output = Result<String>> + Send + Sync + 'a>> {
-        Box::pin(async move {
-            // let payload = Payload {
-            //     text: message.to_string(),
-            // };
+    async fn send(&self, message: &str) {
+        let payload = json!({
+            "text:": message.to_string(),
+        });
 
-            // let payload = serde_json::to_string(&payload)?;
-            let payload = json!({
-                "text:": message.to_string(),
-            });
+        let response = CLIENT
+            .post(&self.webhook)
+            .header("Content-Type", "application/json")
+            .json(&payload)
+            .send()
+            .await;
 
-            let response = CLIENT
-                .post(&self.webhook)
-                .header("Content-Type", "application/json")
-                .json(&payload)
-                .send()
-                .await?;
-            Ok(response.text().await?)
-        })
+        match response {
+            Ok(response) if response.status().is_success() => (),
+            Ok(response) => eprintln!("Error sending message: {:?}", response),
+            Err(err) => eprintln!("Error sending message: {:?}", err),
+        }
     }
 }

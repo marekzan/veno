@@ -2,7 +2,7 @@ use anyhow::{Context, Result};
 use config::{Config, File, FileFormat};
 use serde::{Deserialize, Serialize};
 
-use crate::{artifact::Artifact, notifier::Notifier};
+use crate::{artifact::Artifact, logging::path, notifier::Notifier};
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct AppConfig {
@@ -14,27 +14,29 @@ impl AppConfig {
     pub fn load(file_path: &str) -> Result<Self> {
         let config = Config::builder()
             .add_source(File::new(file_path, FileFormat::Json))
-            .build()?;
+            .build()
+            .context(path("Failed to load config file"))?;
 
         let mut app_config: AppConfig = config
             .try_deserialize()
-            .context("Could not deserialize config to app_config")?;
+            .context(path("Could not deserialize config to app_config struct"))?;
         app_config.notifiers_to_artifact_sink();
         Ok(app_config)
     }
 
     fn notifiers_to_artifact_sink(&mut self) {
         for artifact in &mut self.artifacts {
-            for notifier_name in &artifact.notifier {
-                let sink = self
-                    .notifiers
-                    .iter()
-                    .find(|notifier| notifier.name == *notifier_name)
-                    .map(|notifier| notifier.sink.clone());
-                if let Some(sink) = sink {
-                    artifact.sink.push(sink);
-                }
-            }
+            let sinks: Vec<_> = artifact
+                .notifier
+                .iter()
+                .filter_map(|notifier_name| {
+                    self.notifiers
+                        .iter()
+                        .find(|notifier| notifier.name == *notifier_name)
+                        .map(|notifier| notifier.sink.clone())
+                })
+                .collect();
+            artifact.sink.extend(sinks);
         }
     }
 
@@ -49,7 +51,8 @@ impl AppConfig {
                 });
             }
         }
-        let new_versions = serde_json::to_string(&new_versions)?;
+        let new_versions = serde_json::to_string(&new_versions)
+            .context(path("Failed to serialize new versions"))?;
         Ok(new_versions)
     }
 }

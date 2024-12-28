@@ -1,5 +1,3 @@
-use std::{future::Future, pin::Pin};
-
 use anyhow::Result;
 use github::GithubSource;
 use serde::Deserialize;
@@ -14,18 +12,14 @@ pub enum Source {
 }
 
 impl Source {
-    pub fn unwrap(&self) -> Box<dyn SourceChecker> {
+    pub async fn is_version_behind(&self, current_version: &str) -> Result<Option<String>> {
         match self {
-            Source::Github(source) => Box::new(source.clone()),
+            Source::Github(source) => source.is_version_behind(current_version).await,
         }
     }
 }
 
-// Send + Sync is required for Axum Handler
-pub trait SourceChecker: Send + Sync {
-    fn is_version_behind<'a>(
-        &'a self,
-        current_version: &'a str,
-        // This is needed to allow async methods in the trait
-    ) -> Pin<Box<dyn Future<Output = Result<Option<String>>> + Send + Sync + 'a>>;
+#[allow(async_fn_in_trait)]
+pub trait SourceChecker: Send {
+    async fn is_version_behind(&self, current_version: &str) -> Result<Option<String>>;
 }

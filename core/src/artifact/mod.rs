@@ -1,10 +1,13 @@
 pub mod source;
 
-use anyhow::Result;
+use anyhow::{Context, Result};
 use serde::Deserialize;
 use source::Source;
 
-use crate::notifier::{create_custom_message, create_default_message, Sink};
+use crate::{
+    logging::path,
+    notifier::{create_custom_message, create_default_message, Sink},
+};
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Artifact {
@@ -19,26 +22,23 @@ pub struct Artifact {
 
 impl Artifact {
     pub async fn is_version_behind(&self) -> Result<Option<String>> {
-        self.source
-            .unwrap()
-            .is_version_behind(&self.current_version)
-            .await
+        self.source.is_version_behind(&self.current_version).await
     }
 
     pub async fn notify_on_latest_version(&self) -> Result<()> {
-        if let Ok(Some(latest_version)) = self.is_version_behind().await {
+        if let Some(latest_version) = self
+            .is_version_behind()
+            .await
+            .context(path("Failed to check version"))?
+        {
             for sink in &self.sink {
-                match &self.message_prefix {
+                let message = match &self.message_prefix {
                     Some(prefix) => {
-                        let message =
-                            create_custom_message(prefix, &self.name, latest_version.as_str());
-                        sink.unwrap().send(&message).await?
+                        create_custom_message(prefix, &self.name, latest_version.as_str())
                     }
-                    None => {
-                        let message = create_default_message(&self.name, latest_version.as_str());
-                        sink.unwrap().send(&message).await?
-                    }
+                    None => create_default_message(&self.name, latest_version.as_str()),
                 };
+                sink.send(&message).await
             }
         }
         Ok(())

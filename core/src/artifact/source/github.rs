@@ -1,11 +1,8 @@
-use std::{future::Future, pin::Pin, time::Duration};
-
-use anyhow::Result;
-use serde::Deserialize;
-
-use crate::CLIENT;
-
 use super::SourceChecker;
+use crate::{logging::path, CLIENT};
+use anyhow::{anyhow, Context, Result};
+use serde::Deserialize;
+use std::time::Duration;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct GithubSource {
@@ -13,28 +10,36 @@ pub struct GithubSource {
 }
 
 impl SourceChecker for GithubSource {
-    fn is_version_behind<'a>(
-        &'a self,
-        current_version: &'a str,
-    ) -> Pin<Box<dyn Future<Output = Result<Option<String>>> + Send + Sync + 'a>> {
-        Box::pin(async move {
-            let source = format!("https://api.github.com/repos/{}/releases/latest", self.repo);
-            let response = CLIENT
-                .get(&source)
-                .header("User-Agent", "neveno")
-                .timeout(Duration::from_secs(10))
-                .send()
-                .await?;
+    async fn is_version_behind(&self, current_version: &str) -> Result<Option<String>> {
+        let source = format!("https://api.github.com/repos/{}/releases/latest", self.repo);
 
-            let release: Release = response.json().await?;
-            let latest_version = release.tag_name.trim_start_matches('v').to_string();
+        // Send the HTTP request
+        let response = CLIENT
+            .get(&source)
+            .header("User-Agent", "veno")
+            .timeout(Duration::from_secs(10))
+            .send()
+            .await
+            .context(path("Failed to fetch latest release"))?;
 
-            if latest_version.as_str() > current_version {
-                Ok(Some(latest_version))
-            } else {
-                Ok(None)
-            }
-        })
+        // Check for successful HTTP status
+        if !response.status().is_success() {
+            return Err(anyhow!("Request failed: {:?}", response));
+        }
+
+        // Parse the JSON response
+        let release: Release = response
+            .json()
+            .await
+            .context(path("Failed to parse JSON response"))?;
+
+        // Extract and compare the version
+        let latest_version = release.tag_name.trim_start_matches('v');
+        if latest_version > current_version {
+            Ok(Some(latest_version.to_string()))
+        } else {
+            Ok(None)
+        }
     }
 }
 

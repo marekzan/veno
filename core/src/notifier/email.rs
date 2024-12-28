@@ -1,6 +1,4 @@
-use anyhow::Result;
 use serde::Deserialize;
-use std::{future::Future, pin::Pin};
 
 use super::SinkSender;
 
@@ -13,10 +11,7 @@ pub struct EmailSink {
 }
 
 impl SinkSender for EmailSink {
-    fn send<'a>(
-        &'a self,
-        message: &'a str,
-    ) -> Pin<Box<dyn Future<Output = Result<String>> + Send + Sync + 'a>> {
-        Box::pin(async move { Ok(format!("Email sent: {}", message)) })
+    async fn send(&self, message: &str) {
+        println!("Email sent: {}", message);
     }
 }
