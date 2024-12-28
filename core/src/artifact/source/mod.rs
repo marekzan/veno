@@ -1,7 +1,11 @@
 use anyhow::Result;
+use artifacthub::ArtifactHubSource;
+use dockerhub::DockerhubSource;
 use github::GithubSource;
 use serde::Deserialize;
 
+pub mod artifacthub;
+pub mod dockerhub;
 pub mod github;
 
 #[derive(Deserialize, Debug, Clone)]
@@ -9,12 +13,16 @@ pub mod github;
 pub enum Source {
     #[serde(rename = "github")]
     Github(GithubSource),
+    Dockerhub(DockerhubSource),
+    ArtifactHub(ArtifactHubSource),
 }
 
 impl Source {
     pub async fn is_version_behind(&self, current_version: &str) -> Result<Option<String>> {
         match self {
             Source::Github(source) => source.is_version_behind(current_version).await,
+            Source::Dockerhub(source) => source.is_version_behind(current_version).await,
+            Source::ArtifactHub(source) => source.is_version_behind(current_version).await,
         }
     }
 }
