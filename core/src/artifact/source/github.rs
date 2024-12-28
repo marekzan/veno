@@ -1,5 +1,5 @@
 use super::SourceChecker;
-use crate::{logging::path, CLIENT};
+use crate::CLIENT;
 use anyhow::{anyhow, Context, Result};
 use serde::Deserialize;
 use std::time::Duration;
@@ -20,7 +20,7 @@ impl SourceChecker for GithubSource {
             .timeout(Duration::from_secs(10))
             .send()
             .await
-            .context(path("Failed to fetch latest release"))?;
+            .context("Failed to fetch latest release")?;
 
         // Check for successful HTTP status
         if !response.status().is_success() {
@@ -31,7 +31,7 @@ impl SourceChecker for GithubSource {
         let release: Release = response
             .json()
             .await
-            .context(path("Failed to parse JSON response"))?;
+            .context("Failed to parse JSON response")?;
 
         // Extract and compare the version
         let latest_version = release.tag_name.trim_start_matches('v');

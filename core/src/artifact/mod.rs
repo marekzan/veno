@@ -4,10 +4,7 @@ use anyhow::{Context, Result};
 use serde::Deserialize;
 use source::Source;
 
-use crate::{
-    logging::path,
-    notifier::{create_custom_message, create_default_message, Sink},
-};
+use crate::notifier::{create_custom_message, create_default_message, Sink};
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct Artifact {
@@ -29,7 +26,7 @@ impl Artifact {
         if let Some(latest_version) = self
             .is_version_behind()
             .await
-            .context(path("Failed to check version"))?
+            .context("Failed to check version")?
         {
             for sink in &self.sink {
                 let message = match &self.message_prefix {

@@ -2,7 +2,7 @@ use anyhow::{Context, Result};
 use config::{Config, File, FileFormat};
 use serde::{Deserialize, Serialize};
 
-use crate::{artifact::Artifact, logging::path, notifier::Notifier};
+use crate::{artifact::Artifact, notifier::Notifier};
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct AppConfig {
@@ -15,11 +15,11 @@ impl AppConfig {
         let config = Config::builder()
             .add_source(File::new(file_path, FileFormat::Json))
             .build()
-            .context(path("Failed to load config file"))?;
+            .context("Failed to load config file")?;
 
         let mut app_config: AppConfig = config
             .try_deserialize()
-            .context(path("Could not deserialize config to app_config struct"))?;
+            .context("Could not deserialize config to app_config struct")?;
         app_config.notifiers_to_artifact_sink();
         Ok(app_config)
     }
@@ -51,8 +51,8 @@ impl AppConfig {
                 });
             }
         }
-        let new_versions = serde_json::to_string(&new_versions)
-            .context(path("Failed to serialize new versions"))?;
+        let new_versions =
+            serde_json::to_string(&new_versions).context("Failed to serialize new versions")?;
         Ok(new_versions)
     }
 }

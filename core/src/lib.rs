@@ -1,6 +1,5 @@
 pub mod artifact;
 pub mod config;
-pub mod logging;
 pub mod notifier;
 
 use once_cell::sync::Lazy;
