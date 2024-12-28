@@ -1,8 +1,7 @@
 use super::SourceChecker;
-use crate::CLIENT;
+use crate::get;
 use anyhow::{anyhow, Context, Result};
 use serde::Deserialize;
-use std::time::Duration;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct GitHubSource {
@@ -14,11 +13,7 @@ impl SourceChecker for GitHubSource {
         let source = format!("https://api.github.com/repos/{}/releases/latest", self.repo);
 
         // Send the HTTP request
-        let response = CLIENT
-            .get(&source)
-            .header("User-Agent", "veno")
-            .timeout(Duration::from_secs(10))
-            .send()
+        let response = get(&source)
             .await
             .context("Failed to fetch latest release")?;
 
