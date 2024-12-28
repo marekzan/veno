@@ -16,7 +16,7 @@ async fn main() -> Result<()> {
     let config = AppConfig::load(&cli.config)?;
 
     let new_versions = config.check_artifacts().await?;
-    println!("{}", pretty_json(&new_versions));
+    println!("{}", pretty_json(&new_versions)?);
 
     for artifact in &config.artifacts {
         artifact.notify_on_latest_version().await?;
