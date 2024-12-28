@@ -1,7 +1,7 @@
 use anyhow::Result;
 use artifacthub::ArtifactHubSource;
-use dockerhub::DockerhubSource;
-use github::GithubSource;
+use dockerhub::DockerHubSource;
+use github::GitHubSource;
 use serde::Deserialize;
 
 pub mod artifacthub;
@@ -12,16 +12,16 @@ pub mod github;
 #[serde(tag = "type")] // Use tag-based enum for source type
 pub enum Source {
     #[serde(rename = "github")]
-    Github(GithubSource),
-    Dockerhub(DockerhubSource),
+    GitHub(GitHubSource),
+    DockerHub(DockerHubSource),
     ArtifactHub(ArtifactHubSource),
 }
 
 impl Source {
     pub async fn is_version_behind(&self, current_version: &str) -> Result<Option<String>> {
         match self {
-            Source::Github(source) => source.is_version_behind(current_version).await,
-            Source::Dockerhub(source) => source.is_version_behind(current_version).await,
+            Source::GitHub(source) => source.is_version_behind(current_version).await,
+            Source::DockerHub(source) => source.is_version_behind(current_version).await,
             Source::ArtifactHub(source) => source.is_version_behind(current_version).await,
         }
     }

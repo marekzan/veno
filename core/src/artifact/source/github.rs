@@ -5,11 +5,11 @@ use serde::Deserialize;
 use std::time::Duration;
 
 #[derive(Deserialize, Debug, Clone)]
-pub struct GithubSource {
+pub struct GitHubSource {
     pub repo: String,
 }
 
-impl SourceChecker for GithubSource {
+impl SourceChecker for GitHubSource {
     async fn is_version_behind(&self, current_version: &str) -> Result<Option<String>> {
         let source = format!("https://api.github.com/repos/{}/releases/latest", self.repo);
 
