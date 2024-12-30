@@ -21,18 +21,20 @@
     },
     {
       "name": "private_email",
-      "sink":{
+      "sink": {
         "type": "email",
         "host": "smtp.gmail.com",
-        "port": 587,
+        "port": 587, // optional - default: 587
         "username": "username",
-        "password": "password"
-      } 
+        "password": "password",
+        "to": "recipient@somemail.com",
+        "subject": "New version available" // optional - default: "New version available"
+      }
     },
     {
       "name": "team_google_chat",
       "sink": {
-        "type":"google_chat",
+        "type": "google_chat",
         "webhook": "..."
       }
     }
