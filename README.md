@@ -167,8 +167,8 @@ Here's a sample `config.json`:
 
 ### In Progress:
 
-- Refactoring the codebase
-- Email as a sink
+- Ongoing: more sources and sinks
+- Adding Environment Variables to the configuration file
 
 ### Planned Features:
 
