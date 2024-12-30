@@ -34,10 +34,8 @@ impl SinkSender for EmailSink {
             }
         };
 
-        // Send the email
-        match mailer.send(&email) {
-            Ok(_) => println!("Email sent successfully!"),
-            Err(e) => eprintln!("Failed to send email: {:?}", e),
+        if let Err(e) = mailer.send(&email) {
+            eprintln!("Failed to close mailer: {:?}", e);
         }
     }
 }

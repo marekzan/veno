@@ -1,6 +1,7 @@
 pub mod email;
 pub mod google_chat;
 pub mod slack;
+pub mod webhook;
 
 use email::EmailSink;
 use google_chat::GoogleChatSink;

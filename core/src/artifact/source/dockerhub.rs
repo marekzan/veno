@@ -9,6 +9,10 @@ pub struct DockerHubSource {
 
 impl SourceChecker for DockerHubSource {
     async fn is_version_behind(&self, current_version: &str) -> Result<Option<String>> {
+        println!(
+            "Checking DockerHub for new version of {}. Current version is: {}",
+            self.repo, current_version
+        );
         todo!()
     }
 }

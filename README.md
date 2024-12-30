@@ -182,6 +182,7 @@ Here's a sample `config.json`:
 - include alpha, beta, and release candidate versions and allow users to specify which versions to track
 - decide on which version update you want to be notified (major, minor, patch...)
 - yaml config support
+- custom Chat Cards for Sinks (if supported)
 - and many more
 
 ## Contributing
