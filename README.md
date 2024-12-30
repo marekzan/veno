@@ -181,6 +181,7 @@ Here's a sample `config.json`:
 - make notifiers have references to artifacts so that only one message is being sent to the sink for multiple artifacts
 - include alpha, beta, and release candidate versions and allow users to specify which versions to track
 - decide on which version update you want to be notified (major, minor, patch...)
+- yaml config support
 - and many more
 
 ## Contributing
