@@ -10,6 +10,7 @@ pub struct GoogleChatSink {
 
 impl SinkSender for GoogleChatSink {
     async fn send(&self, message: &str) {
+        // here we will build a default google chat card
         let payload = json!({
             "text:": message.to_string(),
         });

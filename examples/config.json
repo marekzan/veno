@@ -16,7 +16,7 @@
       "name": "team_slack",
       "sink": {
         "type": "slack",
-        "webhook": "..."
+        "webhook": ".."
       }
     },
     {

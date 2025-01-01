@@ -13,7 +13,9 @@ pub mod github;
 pub enum Source {
     #[serde(rename = "github")]
     GitHub(GitHubSource),
+    #[serde(rename = "dockerhub")]
     DockerHub(DockerHubSource),
+    #[serde(rename = "artifacthub")]
     ArtifactHub(ArtifactHubSource),
 }
 

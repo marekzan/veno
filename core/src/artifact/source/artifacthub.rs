@@ -13,6 +13,9 @@ impl SourceChecker for ArtifactHubSource {
             "Checking Artifacthub for new version of {}. Current version is: {}",
             self.repo, current_version
         );
-        todo!()
+        // Ok(Some("12.0.1".to_string()))
+        // Ok(None)
+        // Err(anyhow::anyhow!("Not implemented"))
+        todo!("this is currently a test sink")
     }
 }
