@@ -100,62 +100,19 @@ Here’s an example of a notifier configuration:
 
 ## Usage
 
-Veno can be operated in two modes:
+Veno can/will be operated in three modes:
 
-1. **CLI**  
+1. **CLI** (currently prioritized)
    The CLI mode executes a single operation each time it is run.
 
-2. **Web Service**  
+2. **Web Service** (when most features are implemented, the web service will be prioritized)
    The web service uses Axum to provide endpoints for triggering checks, retrieving version lists, and other useful actions in the future.
+
+3. **Daemon (with scheduling)** (not yet implemented)
 
 ### Configuration
 
-Both operation modes require a `config.json` file, which must be passed using the `--config` parameter. An example configuration file is included in the `example` folder.
-
-Here's a sample `config.json`:
-
-```json
-{
-  "artifacts": [
-    {
-      "name": "Rust",
-      "message_prefix": "There is a new version of:", // optional
-      "source": {
-        "type": "github",
-        "repo": "rust-lang/rust"
-      },
-      "current_version": "1.83.0",
-      "notifier": ["team_slack", "private_email"]
-    }
-  ],
-  "notifiers": [
-    {
-      "name": "team_slack",
-      "sink": {
-        "type": "slack",
-        "webhook": "..."
-      }
-    },
-    {
-      "name": "private_email",
-      "sink": {
-        "type": "email",
-        "host": "smtp.gmail.com",
-        "port": 587,
-        "username": "username",
-        "password": "password"
-      }
-    },
-    {
-      "name": "team_google_chat",
-      "sink": {
-        "type": "google_chat",
-        "webhook": "..."
-      }
-    }
-  ]
-}
-```
+Both operation modes require a `config.json` file, which must be passed using the `--config` parameter. An example configuration file is included in the `example` folder [here](examples/config.json).
 
 ## Roadmap
 
@@ -175,7 +132,6 @@ Here's a sample `config.json`:
 - Allow environment variables in the configuration file (e.g., `${password}`) for sensitive data
 - More sources: GitLab, Bitbucket, Docker Hub, Artifacthub, etc.
 - Additional sinks: Microsoft Teams, Rocket Chat, etc.
-- Scheduling for periodic checks
 - update the current_version field in the configuration file automatically
 - Web endpoint to silence notifications for a specific artifact
 - make notifiers have references to artifacts so that only one message is being sent to the sink for multiple artifacts
@@ -183,6 +139,7 @@ Here's a sample `config.json`:
 - decide on which version update you want to be notified (major, minor, patch...)
 - yaml config support
 - custom Chat Cards for Sinks (if supported)
+- Scheduling for periodic checks (daemon mode)
 - and many more
 
 ## Contributing
