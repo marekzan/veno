@@ -7,6 +7,7 @@ use email::EmailSink;
 use google_chat::GoogleChatSink;
 use serde::Deserialize;
 use slack::SlackSink;
+use webhook::WebhookSink;
 
 static DEFAULT_MESSAGE_PREFIX: &str = "New version available for";
 
@@ -25,6 +26,8 @@ pub enum Sink {
     Email(EmailSink),
     #[serde(rename = "google_chat")]
     GoogleChat(GoogleChatSink),
+    #[serde(rename = "webhook")]
+    Webhook(WebhookSink),
 }
 
 impl Sink {
@@ -33,6 +36,7 @@ impl Sink {
             Sink::Slack(sender) => sender.send(message).await,
             Sink::Email(sender) => sender.send(message).await,
             Sink::GoogleChat(sender) => sender.send(message).await,
+            Sink::Webhook(sender) => sender.send(message).await,
         }
     }
 }

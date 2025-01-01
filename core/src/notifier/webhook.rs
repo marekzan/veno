@@ -1,5 +1,24 @@
 use crate::CLIENT;
-use serde_json::Value;
+use serde::Deserialize;
+use serde_json::{json, Value};
+
+use super::SinkSender;
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct WebhookSink {
+    pub webhook: String,
+}
+
+impl SinkSender for WebhookSink {
+    async fn send(&self, message: &str) {
+        // here we will build a default google chat card
+        let payload = json!({
+            "text:": message.to_string(),
+        });
+
+        call(&self.webhook, &payload).await;
+    }
+}
 
 pub async fn call(webhook: &str, payload: &Value) {
     match CLIENT
