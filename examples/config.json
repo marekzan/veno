@@ -13,6 +13,13 @@
   ],
   "notifiers": [
     {
+      "name": "generic_webhook",
+      "sink": {
+        "type": "webhook",
+        "webhook": ".."
+      }
+    },
+    {
       "name": "team_slack",
       "sink": {
         "type": "slack",
@@ -26,7 +33,7 @@
         "host": "smtp.gmail.com",
         "port": 587, // optional - default: 587
         "username": "username",
-        "password": "password",
+        "password": "${EMAIL_PASSWORD}",
         "to": "recipient@somemail.com",
         "subject": "New version available" // optional - default: "New version available"
       }

@@ -113,34 +113,59 @@ Veno can/will be operated in three modes:
 ### Configuration
 
 Both operation modes require a `config.json` file, which must be passed using the `--config` parameter. An example configuration file is included in the `example` folder [here](examples/config.json).
+You can use Environment Variables to set values in the config file.
 
-## Roadmap
+## Features & Roadmap
 
-### What’s Working:
+### Modes
 
-- **Modes**: CLI
-- **Sources**: GitHub
-- **Sinks**: Slack, Google Chat
+| **Status** | **Features** |
+| ---------- | ------------ |
+| working    | cli          |
+| planned    | web          |
+| planned    | daemon       |
 
-### In Progress:
+### Sources
 
-- Ongoing: more sources and sinks
-- Adding Environment Variables to the configuration file
+| Status      | Features    |
+| ----------- | ----------- |
+| working     | GitHub      |
+| in progress | Docker Hub  |
+| in progress | Artifacthub |
+| planned     | GitLab      |
+| planned     | Bitbucket   |
 
-### Planned Features:
+### Sinks
 
-- Allow environment variables in the configuration file (e.g., `${password}`) for sensitive data
-- More sources: GitLab, Bitbucket, Docker Hub, Artifacthub, etc.
-- Additional sinks: Microsoft Teams, Rocket Chat, etc.
-- update the current_version field in the configuration file automatically
-- Web endpoint to silence notifications for a specific artifact
-- make notifiers have references to artifacts so that only one message is being sent to the sink for multiple artifacts
-- include alpha, beta, and release candidate versions and allow users to specify which versions to track
-- decide on which version update you want to be notified (major, minor, patch...)
-- yaml config support
-- custom Chat Cards for Sinks (if supported)
-- Scheduling for periodic checks (daemon mode)
-- and many more
+| Status      | Features        |
+| ----------- | --------------- |
+| working     | Generic Webhook |
+| working     | Email           |
+| in progress | Slack           |
+| in progress | Google Chat     |
+| planned     | Microsoft Teams |
+| planned     | Rocket Chat     |
+
+### Features
+
+| Status      | Features                                                                                                              |
+| ----------- | --------------------------------------------------------------------------------------------------------------------- |
+| working     | environment variables in config file                                                                                  |
+| in progress | make notifiers have references to artifacts so that only one message is being sent to the sink for multiple artifacts |
+
+### Ideas
+
+| Status  | Features                                                                                              |
+| ------- | ----------------------------------------------------------------------------------------------------- |
+| planned | yaml config support                                                                                   |
+| planned | toml config support                                                                                   |
+| planned | Web endpoint to silence notifications for a specific artifact                                         |
+| planned | update the current_version field in the configuration file automatically                              |
+| planned | decide on which version update you want to be notified (major, minor, patch or other version regex)   |
+| planned | include alpha, beta, and release candidate versions and allow users to specify which version to track |
+| planned | scheduling for periodic checks (daemon mode)                                                          |
+| planned | custom Chat Cards for Sinks (if supported)                                                            |
+| planned | alpha, beta, and release candidate versions                                                           |
 
 ## Contributing
 
