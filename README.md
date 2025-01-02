@@ -134,6 +134,7 @@ You can use Environment Variables to set values in the config file.
 | in progress | Artifacthub |
 | planned     | GitLab      |
 | planned     | Bitbucket   |
+| planned     | Quay        |
 
 ### Sinks
 
@@ -155,17 +156,18 @@ You can use Environment Variables to set values in the config file.
 
 ### Ideas
 
-| Status  | Features                                                                                              |
-| ------- | ----------------------------------------------------------------------------------------------------- |
-| planned | yaml config support                                                                                   |
-| planned | toml config support                                                                                   |
-| planned | Web endpoint to silence notifications for a specific artifact                                         |
-| planned | update the current_version field in the configuration file automatically                              |
-| planned | decide on which version update you want to be notified (major, minor, patch or other version regex)   |
-| planned | include alpha, beta, and release candidate versions and allow users to specify which version to track |
-| planned | scheduling for periodic checks (daemon mode)                                                          |
-| planned | custom Chat Cards for Sinks (if supported)                                                            |
-| planned | alpha, beta, and release candidate versions                                                           |
+| Status      | Features                                                                                              |
+| ----------- | ----------------------------------------------------------------------------------------------------- |
+| in progress | multiple recipients for email sink                                                                    |
+| planned     | yaml config support                                                                                   |
+| planned     | toml config support                                                                                   |
+| planned     | Web endpoint to silence notifications for a specific artifact                                         |
+| planned     | update the current_version field in the configuration file automatically                              |
+| planned     | decide on which version update you want to be notified (major, minor, patch or other version regex)   |
+| planned     | include alpha, beta, and release candidate versions and allow users to specify which version to track |
+| planned     | scheduling for periodic checks (daemon mode)                                                          |
+| planned     | custom Chat Cards for Sinks (if supported)                                                            |
+| planned     | alpha, beta, and release candidate versions                                                           |
 
 ## Contributing
 
