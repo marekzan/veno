@@ -10,24 +10,7 @@ So, what are **artifacts** and **notifiers**?
 
 ### Artifacts
 
-An artifact is any (GitHub) repository that uses tags to assign versions to its releases. You can define an artifact like this:
-
-```json
-{
-  "artifacts": [
-    {
-      "name": "Rust",
-      "message_prefix": "There is a new version of:", // optional
-      "current_version": "1.83.0",
-      "source": {
-        "type": "github",
-        "repo": "rust-lang/rust"
-      },
-      "notifier": ["team_slack"]
-    }
-  ]
-}
-```
+An Artifact is a definition of a software package or service that you want to track. See the example [configuration file](examples/config.json) to get an understanding of the structure of an artifact.
 
 #### Source
 
@@ -45,62 +28,11 @@ A notifier specifies where notifications should be sent. Currently, we support t
 
 Additional sinks, such as Microsoft Teams and Rocket Chat, are planned.
 
-Here’s an example of a notifier configuration:
-
-```json
-{
-  "notifiers": [
-    {
-      "name": "team_slack",
-      "sink": {
-        "type": "slack",
-        "webhook": "..."
-      }
-    }
-  ]
-}
-```
-
-#### Supported Sink Configurations
-
-- **Slack**:
-
-  ```json
-  {
-    "sink": {
-      "type": "slack",
-      "webhook": "..."
-    }
-  }
-  ```
-
-- **Google Chat**:
-
-  ```json
-  {
-    "sink": {
-      "type": "google_chat",
-      "webhook": "..."
-    }
-  }
-  ```
-
-- **Email**:
-  ```json
-  {
-    "sink": {
-      "type": "email",
-      "host": "smtp...",
-      "port": 587,
-      "username": "...",
-      "password": "..."
-    }
-  }
-  ```
+See the example [configuration file](examples/config.json) to get an understanding of the structure of a notifier.
 
 ## Usage
 
-Veno can/will be operated in three modes:
+Veno will be able to be operated in three modes:
 
 1. **CLI** (currently prioritized)
    The CLI mode executes a single operation each time it is run.
@@ -112,7 +44,7 @@ Veno can/will be operated in three modes:
 
 ### Configuration
 
-Both operation modes require a `config.json` file, which must be passed using the `--config` parameter. An example configuration file is included in the `example` folder [here](examples/config.json).
+All operation modes require a `config.json` file, which must be passed using the `--config` parameter. An example configuration file is included in the `example` folder [configuration file](examples/config.json).
 You can use Environment Variables to set values in the config file.
 
 ## Features & Roadmap
@@ -153,21 +85,26 @@ You can use Environment Variables to set values in the config file.
 | ----------- | --------------------------------------------------------------------------------------------------------------------- |
 | working     | environment variables in config file                                                                                  |
 | in progress | make notifiers have references to artifacts so that only one message is being sent to the sink for multiple artifacts |
+| in progress | multiple recipients for email sink                                                                                    |
 
 ### Ideas
 
-| Status      | Features                                                                                              |
-| ----------- | ----------------------------------------------------------------------------------------------------- |
-| in progress | multiple recipients for email sink                                                                    |
-| planned     | yaml config support                                                                                   |
-| planned     | toml config support                                                                                   |
-| planned     | Web endpoint to silence notifications for a specific artifact                                         |
-| planned     | update the current_version field in the configuration file automatically                              |
-| planned     | decide on which version update you want to be notified (major, minor, patch or other version regex)   |
-| planned     | include alpha, beta, and release candidate versions and allow users to specify which version to track |
-| planned     | scheduling for periodic checks (daemon mode)                                                          |
-| planned     | custom Chat Cards for Sinks (if supported)                                                            |
-| planned     | alpha, beta, and release candidate versions                                                           |
+| Status  | Features                                                                                                                  |
+| ------- | ------------------------------------------------------------------------------------------------------------------------- |
+| planned | yaml config support                                                                                                       |
+| planned | toml config support                                                                                                       |
+| planned | Web endpoint to silence notifications for a specific artifact                                                             |
+| planned | update the current_version field in the configuration file automatically                                                  |
+| planned | decide on which version update you want to be notified (major, minor, patch or other version regex)                       |
+| planned | include alpha, beta, and release candidate versions and allow users to specify which version to track                     |
+| planned | scheduling for periodic checks (daemon mode)                                                                              |
+| planned | custom Chat Cards for Sinks (if supported)                                                                                |
+| planned | alpha, beta, and release candidate versions                                                                               |
+| planned | give Veno a repo address where the config file is located. this allows veno to pull and update the config file.           |
+| planned | script file template to run commands for veno which runs in a k8s pod                                                     |
+| planned | Be able to split artifact and notifier definitions and merge them. So that different teams can maintain their own configs |
+
+|
 
 ## Contributing
 
