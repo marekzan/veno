@@ -168,6 +168,9 @@ You can use Environment Variables to set values in the config file.
 | planned     | scheduling for periodic checks (daemon mode)                                                          |
 | planned     | custom Chat Cards for Sinks (if supported)                                                            |
 | planned     | alpha, beta, and release candidate versions                                                           |
+| planned     | give Veno a repo address where the config file is located. this allows veno to pull and update the config file. |
+| planned     | script file template to run commands for veno which runs in a k8s pod
+|
 
 ## Contributing
 
