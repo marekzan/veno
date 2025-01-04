@@ -1,5 +1,5 @@
 /target/
-/config.json
+/config-online.json
 integrations.txt
-/config2.json
+/config-offline.json
 /.env

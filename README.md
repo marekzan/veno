@@ -84,8 +84,8 @@ You can use Environment Variables to set values in the config file.
 | Status      | Features                                                                                                              |
 | ----------- | --------------------------------------------------------------------------------------------------------------------- |
 | working     | environment variables in config file                                                                                  |
+| working     | multiple recipients for email sink                                                                                    |
 | in progress | make notifiers have references to artifacts so that only one message is being sent to the sink for multiple artifacts |
-| in progress | multiple recipients for email sink                                                                                    |
 
 ### Ideas
 

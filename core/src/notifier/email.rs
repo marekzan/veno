@@ -13,19 +13,11 @@ pub struct EmailSink {
     pub port: Option<u16>,
     pub username: String,
     pub password: String,
-    pub to: String,
+    pub to: Vec<String>,
 }
 
 impl SinkSender for EmailSink {
     async fn send(&self, message: &str) {
-        let email = match create_message(&self.username, &self.to, message) {
-            Ok(email) => email,
-            Err(e) => {
-                eprintln!("Failed to create email: {:?}", e);
-                return;
-            }
-        };
-
         let mailer = match create_mailer(&self.host, self.port, &self.username, &self.password) {
             Ok(mailer) => mailer,
             Err(e) => {
@@ -34,9 +26,19 @@ impl SinkSender for EmailSink {
             }
         };
 
-        if let Err(e) = mailer.send(&email) {
-            eprintln!("Failed to close mailer: {:?}", e);
-        }
+        self.to.iter().for_each(|to| {
+            let email = match create_message(&self.username, to, message) {
+                Ok(email) => email,
+                Err(e) => {
+                    eprintln!("Failed to create email: {:?}", e);
+                    return;
+                }
+            };
+
+            if let Err(e) = mailer.send(&email) {
+                eprintln!("Failed to close mailer: {:?}", e);
+            }
+        });
     }
 }
 
