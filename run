@@ -1,0 +1,71 @@
+#!/bin/bash
+
+# Define configuration files
+CONFIG_FILE_ONLINE="config-online.json"
+CONFIG_FILE_OFFLINE="config-offline.json"
+
+# Usage function to display help
+usage() {
+  echo "Usage: $0 [command] [mode]"
+  echo ""
+  echo "Commands:"
+  echo "  build  Build all packages"
+  echo "  cli    Run the CLI application"
+  echo "  web    Run the Web application"
+  echo ""
+  echo "Modes:"
+  echo "  online     Use the online configuration"
+  echo "  offline    Use the offline configuration"
+  exit 1
+}
+
+# Check for the --help flag
+if [[ "$1" == "--help" ]]; then
+  usage
+fi
+
+# Check for sufficient arguments
+if [[ $# -lt 1 ]]; then
+  usage
+fi
+
+# Parse arguments
+COMMAND=$1
+MODE=${2:-offline}
+CONFIG_FILE=""
+
+echo $MODE
+
+# Determine the configuration file based on the mode
+case $MODE in
+online)
+  CONFIG_FILE=$CONFIG_FILE_ONLINE
+  ;;
+offline)
+  CONFIG_FILE=$CONFIG_FILE_OFFLINE
+  ;;
+*)
+  echo "Invalid mode: $MODE. Use 'online' or 'offline'."
+  usage
+  ;;
+esac
+
+# Execute the appropriate command
+case $COMMAND in
+build)
+  echo "Building all packages"
+  cargo build --all
+  ;;
+cli)
+  echo "Running CLI application in $MODE mode with config file $CONFIG_FILE"
+  cargo run -p veno-cli -- --config "$CONFIG_FILE"
+  ;;
+web)
+  echo "Running Web application in $MODE mode with config file $CONFIG_FILE"
+  cargo run -p veno-web -- --config "$CONFIG_FILE"
+  ;;
+*)
+  echo "Invalid command: $COMMAND. Use 'cli' or 'web'."
+  usage
+  ;;
+esac
