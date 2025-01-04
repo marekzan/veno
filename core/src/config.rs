@@ -86,3 +86,125 @@ struct CheckedArtifact {
     current_version: String,
     latest_version: String,
 }
+
+#[cfg(test)]
+mod tests {
+    use crate::{
+        artifact::source::Source,
+        notifier::{google_chat::GoogleChatSink, slack::SlackSink, Sink},
+    };
+
+    use super::*;
+
+    #[test]
+    fn test_notifiers_to_artifact_sink() {
+        let google_chat_sink = GoogleChatSink {
+            webhook: "webhook".to_string(),
+        };
+
+        let slack_sink = SlackSink {
+            webhook: "webhook".to_string(),
+        };
+
+        let notifier1 = Notifier {
+            name: "notifier1".to_string(),
+            sink: Sink::GoogleChat(google_chat_sink),
+        };
+        let notifier2 = Notifier {
+            name: "notifier2".to_string(),
+            sink: Sink::Slack(slack_sink),
+        };
+
+        let artifact = Artifact {
+            name: "artifact1".to_string(),
+            message_prefix: None,
+            notifier: vec!["notifier1".to_string(), "notifier2".to_string()],
+            source: Source::GitHub(crate::artifact::source::github::GitHubSource {
+                repo: "repo".to_string(),
+            }),
+            current_version: "1.0.0".to_string(),
+            sink: vec![],
+        };
+
+        let mut config = AppConfig {
+            artifacts: vec![artifact],
+            notifiers: vec![notifier1, notifier2],
+        };
+
+        config.notifiers_to_artifact_sink();
+
+        assert_eq!(config.artifacts[0].sink.len(), 2);
+    }
+
+    #[test]
+    fn test_notifiers_to_artifact_sink_without_reference() {
+        let google_chat_sink = GoogleChatSink {
+            webhook: "webhook".to_string(),
+        };
+
+        let slack_sink = SlackSink {
+            webhook: "webhook".to_string(),
+        };
+
+        let notifier1 = Notifier {
+            name: "notifier1".to_string(),
+            sink: Sink::GoogleChat(google_chat_sink),
+        };
+        let notifier2 = Notifier {
+            name: "notifier2".to_string(),
+            sink: Sink::Slack(slack_sink),
+        };
+
+        let artifact = Artifact {
+            name: "artifact1".to_string(),
+            message_prefix: None,
+            notifier: vec![],
+            source: Source::GitHub(crate::artifact::source::github::GitHubSource {
+                repo: "repo".to_string(),
+            }),
+            current_version: "1.0.0".to_string(),
+            sink: vec![],
+        };
+
+        let mut config = AppConfig {
+            artifacts: vec![artifact],
+            notifiers: vec![notifier1, notifier2],
+        };
+
+        config.notifiers_to_artifact_sink();
+
+        assert_eq!(config.artifacts[0].sink.len(), 0);
+    }
+
+    // this should probably be an error
+    #[test]
+    fn test_notifiers_to_artifact_sink_missing() {
+        let artifact = Artifact {
+            name: "artifact1".to_string(),
+            message_prefix: None,
+            notifier: vec!["notifier1".to_string(), "notifier2".to_string()],
+            source: Source::GitHub(crate::artifact::source::github::GitHubSource {
+                repo: "repo".to_string(),
+            }),
+            current_version: "1.0.0".to_string(),
+            sink: vec![],
+        };
+
+        let mut config = AppConfig {
+            artifacts: vec![artifact],
+            notifiers: vec![],
+        };
+
+        config.notifiers_to_artifact_sink();
+
+        assert_eq!(config.artifacts[0].sink.len(), 0);
+    }
+
+    #[test]
+    fn test_replace_env_placeholders() {
+        env::set_var("TEST_VAR", "test_value");
+        let config = "key=${TEST_VAR}".to_string();
+        let result = replace_env_placeholders(config);
+        assert_eq!(result, "key=test_value");
+    }
+}
