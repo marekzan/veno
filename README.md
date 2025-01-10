@@ -62,8 +62,8 @@ You can use Environment Variables to set values in the config file.
 | Status      | Features    |
 | ----------- | ----------- |
 | working     | GitHub      |
+| working     | Artifacthub |
 | in progress | Docker Hub  |
-| in progress | Artifacthub |
 | planned     | GitLab      |
 | planned     | Bitbucket   |
 | planned     | Quay        |
