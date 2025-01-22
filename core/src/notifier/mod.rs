@@ -41,8 +41,7 @@ impl Sink {
     }
 }
 
-#[allow(async_fn_in_trait)]
-pub trait SinkSender: Send {
+trait SinkSender: Send {
     async fn send(&self, message: &str);
 }
 

@@ -1,4 +1,5 @@
 pub mod source;
+pub mod version;
 
 use anyhow::{Context, Result};
 use serde::Deserialize;
@@ -18,7 +19,7 @@ pub struct Artifact {
 }
 
 impl Artifact {
-    pub async fn is_version_behind(&self) -> Result<Option<String>> {
+    pub(super) async fn is_version_behind(&self) -> Result<Option<String>> {
         self.source.is_version_behind(&self.current_version).await
     }
 
