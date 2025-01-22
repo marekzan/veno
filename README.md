@@ -93,6 +93,7 @@ You can use Environment Variables to set values in the config file.
 | ------- | ------------------------------------------------------------------------------------------------------------------------- |
 | planned | yaml config support                                                                                                       |
 | planned | toml config support                                                                                                       |
+| planned | implement a config linter                                                                                                 |
 | planned | Web endpoint to silence notifications for a specific artifact                                                             |
 | planned | update the current_version field in the configuration file automatically                                                  |
 | planned | decide on which version update you want to be notified (major, minor, patch or other version regex)                       |

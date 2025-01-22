@@ -18,6 +18,7 @@ pub struct EmailSink {
 
 impl SinkSender for EmailSink {
     async fn send(&self, message: &str) {
+        println!("found version: {:?}", message);
         let mailer = match create_mailer(&self.host, self.port, &self.username, &self.password) {
             Ok(mailer) => mailer,
             Err(e) => {
