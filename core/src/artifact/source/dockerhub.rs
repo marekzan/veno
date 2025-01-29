@@ -1,5 +1,3 @@
-use std::vec;
-
 use crate::get;
 
 use super::SourceChecker;
@@ -16,8 +14,8 @@ const PAGE_SIZE_QUERY_PARAM: &str = "page_size=200";
 
 impl SourceChecker for DockerHubSource {
     async fn is_version_behind(&self, current_version: &str) -> Result<Option<String>> {
-        let split_current_version = split_version(current_version);
-        let version_schema = get_schema(&split_current_version);
+        let curr_v_split = split_version(current_version);
+        let curr_v_tokens = infer_tokens(&curr_v_split);
 
         let repository = if self.repo.contains("/") {
             &self.repo
@@ -44,73 +42,99 @@ impl SourceChecker for DockerHubSource {
             .await
             .context("Failed to parse JSON response")?;
 
-        let mut matched_versions: Vec<String> = vec![];
-        for result in response.results {
-            if let Some(version) =
-                match_version(&split_current_version, &version_schema, &result.name)
-            {
-                matched_versions.push(version);
-            }
-        }
+        let compatible_versions = response
+            .results
+            .iter()
+            .filter_map(|result| {
+                find_compatible_version(&curr_v_split, &curr_v_tokens, &result.name)
+            })
+            .collect::<Vec<String>>();
 
-        // FIXME: this can return older version. we still need to check if the matched versions are
-        // newer than the current version
-        Ok(Some(matched_versions.join(", ")))
+        Ok(Some(compatible_versions.join(", ")))
     }
 }
 
 fn split_version(version: &str) -> Vec<&str> {
     let separators = ['.', '-', ':']; // Define your separators
-    let parts: Vec<&str> = version.split(|c| separators.contains(&c)).collect();
-
-    parts
+    version.split(|c| separators.contains(&c)).collect()
 }
 
 // NOTE: this can be used for matching what versions to match. if i only want major and minor i
 // could to smth like: y-y-n-n-n on a version like 1.2.0-stable-alpine
 #[derive(Debug, PartialEq, Eq)]
-enum VersionPartType {
+enum VersionToken {
     Number,
     String,
 }
 
-fn get_schema(split_version: &[&str]) -> Vec<VersionPartType> {
+fn infer_tokens(split_version: &[&str]) -> Vec<VersionToken> {
     split_version
         .iter()
         .map(|part| {
             if part.parse::<i32>().is_ok() {
-                VersionPartType::Number
+                VersionToken::Number
             } else {
-                VersionPartType::String
+                VersionToken::String
             }
         })
         .collect()
 }
 
-fn match_version(
-    split_curr_version: &[&str],
-    schema_curr_version: &[VersionPartType],
-    new_version: &str,
+fn find_compatible_version(
+    curr_v_split: &[&str],
+    curr_v_tokens: &[VersionToken],
+    new_v: &str,
 ) -> Option<String> {
-    let split_new_version = split_version(new_version);
-    let schema_new_version = get_schema(&split_new_version);
+    let new_v_split = split_version(new_v);
+    let new_v_tokens = infer_tokens(&new_v_split);
 
-    // if the schema of both match and the string parts match then we have the correct version
-    if schema_curr_version == schema_new_version
-        && split_curr_version
-            .iter()
-            .zip(&split_new_version)
-            .enumerate()
-            .all(
-                |(i, (curr_version_part, new_version_part))| match schema_curr_version[i] {
-                    VersionPartType::Number => true,
-                    VersionPartType::String => curr_version_part == new_version_part,
-                },
-            )
-    {
-        return Some(new_version.to_string());
+    // check if the version types are equal
+    // [Number, Number, Number, String, String] ==
+    // [Number, Number, Number, String, String]
+    if curr_v_tokens == new_v_tokens {
+        // we check if the merged version parts match their syntax
+        if versions_compatible(curr_v_split, curr_v_tokens, &new_v_split)
+            && version_is_newer(curr_v_split, curr_v_tokens, &new_v_split, &new_v_tokens)
+        {
+            return Some(new_v.to_string());
+        }
     }
     None
+}
+
+fn versions_compatible(
+    curr_v_split: &[&str],
+    curr_v_types: &[VersionToken],
+    new_v_split: &[&str],
+) -> bool {
+    // we merge both splitted versions so we get a tuple to check
+    // ["1", "0", "2", "alpine", "otel"] and
+    // ["1", "3", "0", "alpine", "otel"] yields
+    // [("1", "1"), ("0", "3"), ("2", "0"), ("alpine", "alpine"), ("otel", "otel")]
+    let mut version_pairs = curr_v_split.iter().zip(new_v_split).enumerate();
+
+    // closure which checks if the string values are equal -> we have a matching version structure
+    // we just use true for number types since we need to check for them later
+    let match_structure =
+        |(index, (curr_v_value, new_v_value)): (usize, (&_, &_))| match curr_v_types[index] {
+            VersionToken::Number => true,
+            VersionToken::String => curr_v_value == new_v_value,
+        };
+
+    // we check if the version pairs match their structure
+    version_pairs.all(match_structure)
+}
+
+fn version_is_newer(
+    curr_v_split: &[&str],
+    curr_v_tokens: &[VersionToken],
+    new_v_split: &[&str],
+    new_v_tokens: &[VersionToken],
+) -> bool {
+    let version_pair = curr_v_split.iter().zip(new_v_split).enumerate();
+    let token_pair = curr_v_tokens.iter().zip(new_v_tokens).enumerate();
+    for (i, (curr_token, new_token)) in token_pair {}
+    true
 }
 
 #[derive(Serialize, Deserialize, Debug)]

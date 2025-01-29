@@ -1,4 +1,4 @@
-use veno_core::{config::AppConfig, pretty_json};
+use veno_core::config::AppConfig;
 
 use anyhow::Result;
 use clap::Parser;
