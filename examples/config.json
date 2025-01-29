@@ -9,6 +9,28 @@
       },
       "current_version": "1.83.0",
       "notifier": ["team_slack", "private_email"]
+    },
+    {
+      "name": "Keycloak Helm Chart",
+      "message_prefix": "There is a new version of:", // optional
+      "current_version": "24.3.1",
+      "source": {
+        "type": "artifacthub",
+        "name": "keycloak",
+        "kind": "HelmCharts", // a list of available kinds: core/src/artifact/source/artifacthub.rs
+        "org": "avashi"
+      },
+      "notifier": ["generic_webhook", "team_google_chat"]
+    },
+    {
+      "name": "nginx",
+      "message_prefix": "There is a new version of:", // optional
+      "current_version": "1.25.2-alpine3.20-perl",
+      "source": {
+        "type": "dockerhub",
+        "repo": "nginx"
+      },
+      "notifier": ["private_email"]
     }
   ],
   "notifiers": [
