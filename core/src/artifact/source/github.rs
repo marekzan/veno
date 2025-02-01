@@ -8,9 +8,16 @@ pub struct GitHubSource {
     pub repo: String,
 }
 
+#[derive(Deserialize)]
+struct Release {
+    tag_name: String,
+}
+
+const GITHUB_API: &str = "https://api.github.com/repos";
+
 impl SourceChecker for GitHubSource {
     async fn is_version_behind(&self, current_version: &str) -> Result<Option<String>> {
-        let source = format!("https://api.github.com/repos/{}/releases/latest", self.repo);
+        let source = format!("{}/{}/releases/latest", GITHUB_API, self.repo);
 
         // Send the HTTP request
         let response = get(&source)
@@ -29,6 +36,9 @@ impl SourceChecker for GitHubSource {
             .context("Failed to parse JSON response")?;
 
         // Extract and compare the version
+        // TODO: change this logic to be used with the version checker but we first need to
+        // implement the case where the version starts with a v (v2.1.0) since the version checker
+        // will declare the v2 as a string and not as a number
         let latest_version = release.tag_name.trim_start_matches('v');
         if latest_version > current_version {
             Ok(Some(latest_version.to_string()))
@@ -36,9 +46,4 @@ impl SourceChecker for GitHubSource {
             Ok(None)
         }
     }
-}
-
-#[derive(Deserialize)]
-struct Release {
-    tag_name: String,
 }

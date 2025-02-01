@@ -1,4 +1,5 @@
 pub mod source;
+mod version_checker;
 
 use anyhow::{Context, Result};
 use serde::Deserialize;

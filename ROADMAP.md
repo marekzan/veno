@@ -32,16 +32,16 @@
 
 ## Features
 
-| Status      | Features                                                                                                              |
-| ----------- | --------------------------------------------------------------------------------------------------------------------- |
-| working     | environment variables in config file                                                                                  |
-| working     | multiple recipients for email sink                                                                                    |
-| in progress | make notifiers have references to artifacts so that only one message is being sent to the sink for multiple artifacts |
+| Status  | Features                             |
+| ------- | ------------------------------------ |
+| working | environment variables in config file |
+| working | multiple recipients for email sink   |
 
 ## Ideas
 
 | Status  | Features                                                                                                                  |
 | ------- | ------------------------------------------------------------------------------------------------------------------------- |
+| planned | make notifiers have references to artifacts so that only one message is being sent to the sink for multiple artifacts     |
 | planned | yaml config support                                                                                                       |
 | planned | toml config support                                                                                                       |
 | planned | implement a config linter (check if notifiers, sources and references are valid)                                          |
@@ -56,3 +56,4 @@
 | planned | multiple config files for different teams (including repos with config files)                                             |
 | planned | script file template to run commands for veno which runs in a k8s pod                                                     |
 | planned | Be able to split artifact and notifier definitions and merge them. So that different teams can maintain their own configs |
+| planned | Make the version logic more robust (own crate; schema detection; schema logic, etc.)                                      |
