@@ -57,3 +57,4 @@
 | planned | script file template to run commands for veno which runs in a k8s pod                                                     |
 | planned | Be able to split artifact and notifier definitions and merge them. So that different teams can maintain their own configs |
 | planned | Make the version logic more robust (own crate; schema detection; schema logic, etc.)                                      |
+| planned | Option to also notify with the changelog or just the link to the changelog                                                |

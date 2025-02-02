@@ -1,76 +1,79 @@
-# Veno
+# **Veno**
 
-**VE**rsion **NO**tifier
+📢 **VE**rsion **NO**tifier – Stay updated with the latest versions of your essential software!
 
-## Description
+[![GitHub Release](https://img.shields.io/github/release/yourproject/veno.svg)](https://github.com/marekzan/veno/releases)
+[![License](https://img.shields.io/badge/license-Apache%202.0%20or%20MIT-blue.svg)](./LICENSE)
 
-What if you could stay effortlessly informed about new versions of your essential artifacts (repositories, Helm charts, and more)?  
-Veno is a simple yet powerful tool that makes it easy to track updates using a single configuration file.
+## 🚀 **Overview**
 
-With Veno, you can define **artifacts** and attach multiple **notifiers** to them.  
-Veno will notify you on your schedule whenever new versions of your artifacts are available.
+Veno is a lightweight tool that tracks new versions of software packages and notifies you via email, webhooks, or chat integrations. Define **artifacts** in a simple config file and attach multiple **notifiers**—Veno will do the rest!
 
-So, what are **artifacts** and **notifiers**?
+## 🔍 **How It Works**
 
-### Artifacts
+1. Define software packages (**artifacts**) in `config.json`.
+2. Choose notification methods (**notifiers**) like email, Slack, or webhooks.
+3. Run Veno via CLI or Web Service to get version updates.
 
-An Artifact is a definition of a software package or service that you want to track. See the example [configuration file](examples/config.json) to get an understanding of the structure of an artifact.
+## 📦 **Artifacts**
 
-#### Source
+Artifacts represent the software packages you want to track. Veno currently supports:
+| Source | Status |
+|------------|---------|
+| **GitHub** | ✅ Supported |
+| **Dockerhub** | ✅ Supported |
+| **ArtifactHub** | ✅ Supported |
+| **GitLab** | 🔜 Planned |
+| **Bitbucket** | 🔜 Planned |
 
-A source specifies where Veno should look for new versions. Currently, we support the following sources:
+## 🔔 **Notifiers**
 
-- **GitHub**
-- **Dockerhub**
-- **ArtifactHub**
+Choose how to receive notifications:
+| Notifier | Status |
+|------------|--------|
+| **Email** | ✅ Supported |
+| **Webhook** | ✅ Supported |
+| **Google Chat** | 🚧 Basic support |
+| **Slack** | 🚧 Basic support |
+| **Microsoft Teams** | 🔜 Planned |
 
-### Notifiers
+## ⚙️ **Usage**
 
-A notifier specifies where notifications should be sent. Currently, we support the following sinks:
+Veno supports three operation modes:
+| Mode | Status | Description |
+|------|--------|-------------|
+| **CLI** | ✅ Working | Run checks on demand |
+| **Web Service** | 🚧 In Progress | REST API for version tracking |
+| **Daemon** | 🔜 Planned | Automated background scheduling |
 
-- **Email**
-- **Google Chat**
-- **Slack**
-- **Webhook**
+**Build it**
 
-Additional sinks, such as Microsoft Teams and Rocket Chat, are planned.
+`cargo build --release`
 
-See the example [configuration file](examples/config.json) to get an understanding of the structure of a notifier.
+**Run via CLI:**
 
-## Usage
+You find the binary in `target/release/veno-cli`.
 
-Veno will be able to be operated in three modes:
+```sh
+veno-cli --config path/to/config.json
+```
 
-1. **CLI** (currently prioritized)
-   The CLI mode executes a single operation each time it is run.
+## 🔧 **Configuration**
 
-2. **Web Service** (when most features are implemented, the web service will be prioritized)
-   The web service uses Axum to provide endpoints for triggering checks, retrieving version lists, and other useful actions in the future.
+All modes require a `config.json` file. Example configuration can be found [here](examples/CONFIG.md).  
+You can also set values using environment variables via the `${}` syntax.
 
-3. **Daemon (with scheduling)** (not yet implemented)
+## 🛤️ **Features & Roadmap**
 
-### Configuration
+For upcoming features, check the [roadmap](ROADMAP.md).
 
-All operation modes require a `config.json` file, which must be passed using the `--config` parameter. An example configuration file is included in the `example` folder [configuration file](examples/config.json).
-You can use Environment Variables to set values in the config file.
+## 💡 **Contributing**
 
-## Features & Roadmap
+Contributions are welcome! Fork the repository and submit a pull request.
 
-You can find the roadmap [here](ROADMAP.md).
+## 📝 **License**
 
-## Contributing
+Veno is dual-licensed under:
 
-Contributions are welcome! Feel free to fork the repository and submit a pull request.
-
-## License
-
-This project is licensed under either of:
-
-- **Apache License, Version 2.0** ([LICENSE-APACHE](./LICENSE-APACHE) or http://www.apache.org/licenses/LICENSE-2.0)
-- **MIT License** ([LICENSE-MIT](./LICENSE-MIT) or http://opensource.org/licenses/MIT)
-
-You may choose either license.
-
----
-
-Let me know if there’s anything else you’d like adjusted!
+- **Apache License, Version 2.0** ([LICENSE-APACHE](./LICENSE-APACHE))
+- **MIT License** ([LICENSE-MIT](./LICENSE-MIT))
