@@ -2,7 +2,7 @@
 
 📢 **VE**rsion **NO**tifier – Stay updated with the latest versions of your essential software!
 
-![GitHub Release](https://img.shields.io/github/v/release/marekzan/veno)
+[![GitHub Release](https://img.shields.io/github/v/release/marekzan/veno)](https://github.com/marekzan/veno/releases)
 [![License](https://img.shields.io/badge/license-Apache%202.0%20or%20MIT-blue.svg)](./LICENSE)
 
 ## 🚀 **Overview**
