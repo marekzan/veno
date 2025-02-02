@@ -10,7 +10,7 @@
 
 ### GitHub
 
-For the repo value you just take the part of the url with the `username/reponame`
+For the identifier value you just take the part of the url with the `username/reponame`
 
 ```
 {
@@ -18,7 +18,7 @@ For the repo value you just take the part of the url with the `username/reponame
   "message_prefix": "There is a new version of:", // optional
   "source": {
     "type": "github",
-    "repo": "rust-lang/rust"
+    "identifier": "rust-lang/rust"
   },
   "current_version": "",
   "notifier": ["team_slack", "private_email"]
@@ -27,7 +27,7 @@ For the repo value you just take the part of the url with the `username/reponame
 
 ### Artifacthub
 
-For the package value you just take the part of the url with the `kind/organization/packagename`
+For the identifier value you just take the part of the url with the `kind/organization/packagename`
 
 ```
 {
@@ -36,7 +36,7 @@ For the package value you just take the part of the url with the `kind/organizat
   "current_version": "24.3.1",
   "source": {
     "type": "artifacthub",
-    "package": "helm/bitnami/keycloak"
+    "identifier": "helm/bitnami/keycloak"
   },
   "notifier": ["generic_webhook", "team_google_chat"]
 },
@@ -44,7 +44,7 @@ For the package value you just take the part of the url with the `kind/organizat
 
 ### Dockerhub
 
-For the repo you just take the part of the url with the `username/imagename`.
+For the identifier value you just take the part of the url with the `username/imagename`.
 Official images have a special syntax `_/nginx` for example. For these you just use the image name `nginx`.
 
 ```
@@ -54,7 +54,7 @@ Official images have a special syntax `_/nginx` for example. For these you just 
   "current_version": "1.25.2-alpine3.20-perl",
   "source": {
     "type": "dockerhub",
-    "repo": "nginx"
+    "identifier": "nginx"
   },
   "notifier": ["private_email"]
 }

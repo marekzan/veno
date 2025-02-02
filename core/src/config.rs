@@ -120,7 +120,7 @@ mod tests {
             message_prefix: None,
             notifier: vec!["notifier1".to_string(), "notifier2".to_string()],
             source: Source::GitHub(crate::artifact::source::github::GitHubSource {
-                repo: "repo".to_string(),
+                identifier: "repo".to_string(),
             }),
             current_version: "1.0.0".to_string(),
             sink: vec![],
@@ -160,7 +160,7 @@ mod tests {
             message_prefix: None,
             notifier: vec![],
             source: Source::GitHub(crate::artifact::source::github::GitHubSource {
-                repo: "repo".to_string(),
+                identifier: "repo".to_string(),
             }),
             current_version: "1.0.0".to_string(),
             sink: vec![],
@@ -184,7 +184,7 @@ mod tests {
             message_prefix: None,
             notifier: vec!["notifier1".to_string(), "notifier2".to_string()],
             source: Source::GitHub(crate::artifact::source::github::GitHubSource {
-                repo: "repo".to_string(),
+                identifier: "repo".to_string(),
             }),
             current_version: "1.0.0".to_string(),
             sink: vec![],

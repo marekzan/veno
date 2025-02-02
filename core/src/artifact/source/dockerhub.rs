@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct DockerHubSource {
-    pub repo: String,
+    pub identifier: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -28,7 +28,7 @@ const PAGE_SIZE_QUERY_PARAM: &str = "page_size=200";
 
 impl SourceChecker for DockerHubSource {
     async fn is_version_behind(&self, current_version: &str) -> Result<Option<String>> {
-        let source = build_dockerhub_url(&self.repo);
+        let source = build_dockerhub_url(&self.identifier);
         let response = fetch_dockerhub_tags(&source).await?;
 
         // TODO: we need to fetch the next results of the paginated response

@@ -5,7 +5,7 @@ use serde::Deserialize;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct GitHubSource {
-    pub repo: String,
+    pub identifier: String,
 }
 
 #[derive(Deserialize)]
@@ -17,7 +17,7 @@ const GITHUB_API: &str = "https://api.github.com/repos";
 
 impl SourceChecker for GitHubSource {
     async fn is_version_behind(&self, current_version: &str) -> Result<Option<String>> {
-        let source = format!("{}/{}/releases/latest", GITHUB_API, self.repo);
+        let source = format!("{}/{}/releases/latest", GITHUB_API, self.identifier);
 
         // Send the HTTP request
         let response = get(&source)

@@ -6,7 +6,7 @@ use serde::Deserialize;
 
 #[derive(Deserialize, Debug, Clone)]
 pub struct ArtifactHubSource {
-    pub package: String,
+    pub identifier: String,
 }
 
 #[derive(Deserialize, Debug)]
@@ -18,7 +18,7 @@ const ARTIFACTHUB_API: &str = "https://artifacthub.io/api/v1/packages";
 
 impl SourceChecker for ArtifactHubSource {
     async fn is_version_behind(&self, current_version: &str) -> Result<Option<String>> {
-        let source = format!("{}/{}", ARTIFACTHUB_API, &self.package);
+        let source = format!("{}/{}", ARTIFACTHUB_API, &self.identifier);
 
         let response = get(&source)
             .await
