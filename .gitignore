@@ -3,3 +3,4 @@
 integrations.txt
 /config-offline.json
 /.env
+*.local.*

@@ -1,50 +1,24 @@
 # **Veno**
 
-📢 **VE**rsion **NO**tifier – Stay updated with the latest versions of your essential software!
+**VE**rsion **NO**tifier – Stay updated with the latest versions of your essential software!
 
 [![GitHub Release](https://img.shields.io/github/v/release/marekzan/veno)](https://github.com/marekzan/veno/releases)
 [![License](https://img.shields.io/badge/license-Apache%202.0%20or%20MIT-blue.svg)](./LICENSE)
 
-## 🚀 **Overview**
+## **Overview**
 
 Veno is a lightweight tool that tracks new versions of software packages and notifies you via email, webhooks, or chat integrations. Define **artifacts** in a simple config file and attach multiple **notifiers**—Veno will do the rest!
 
-## 🔍 **How It Works**
+## **How It Works**
 
 1. Define software packages (**artifacts**) in `config.json`.
 2. Choose notification methods (**notifiers**) like email, Slack, or webhooks.
 3. Run Veno via CLI or Web Service to get version updates.
 
-## 📦 **Artifacts**
+> [!Note]
+> See what is currently supported [here](docs/whats_working.md).
 
-Artifacts represent the software packages you want to track. Veno currently supports:
-| Source | Status |
-|------------|---------|
-| **GitHub** | ✅ Supported |
-| **Dockerhub** | ✅ Supported |
-| **ArtifactHub** | ✅ Supported |
-| **GitLab** | 🔜 Planned |
-| **Bitbucket** | 🔜 Planned |
-
-## 🔔 **Notifiers**
-
-Choose how to receive notifications:
-| Notifier | Status |
-|------------|--------|
-| **Email** | ✅ Supported |
-| **Webhook** | ✅ Supported |
-| **Google Chat** | 🚧 Basic support |
-| **Slack** | 🚧 Basic support |
-| **Microsoft Teams** | 🔜 Planned |
-
-## ⚙️ **Usage**
-
-Veno supports three operation modes:
-| Mode | Status | Description |
-|------|--------|-------------|
-| **CLI** | ✅ Working | Run checks on demand |
-| **Web Service** | 🚧 In Progress | REST API for version tracking |
-| **Daemon** | 🔜 Planned | Automated background scheduling |
+## How to Run
 
 **Build it**
 
@@ -58,20 +32,23 @@ You find the binary in `target/release/veno-cli`.
 veno-cli --config path/to/config.json
 ```
 
-## 🔧 **Configuration**
+> [!Tip]
+> We recommend to use the binary as a cron job (or any other scheduling task manager) in your cluster, so you can get the updates in the right time.
 
-All modes require a `config.json` file. Example configuration can be found [here](examples/CONFIG.md).  
+## **Configuration**
+
+All modes require a `config.json` file. Example configuration can be found [here](docs/config.md).  
 You can also set values using environment variables via the `${}` syntax.
 
-## 🛤️ **Features & Roadmap**
+## **Features & Roadmap**
 
-For upcoming features, check the [roadmap](ROADMAP.md).
+For upcoming features, check the [Issues](https://github.com/marekzan/veno/issues?q=is%3Aissue%20state%3Aopen%20label%3Afeature%2Crefactor) or the [Milestones](https://github.com/marekzan/veno/milestones)
 
-## 💡 **Contributing**
+## **Contributing**
 
 Contributions are welcome! Fork the repository and submit a pull request.
 
-## 📝 **License**
+## **License**
 
 Veno is dual-licensed under:
 
