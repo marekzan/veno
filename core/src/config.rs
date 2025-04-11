@@ -1,7 +1,9 @@
-use std::{env, fs};
+use std::{borrow::Cow, env, fs};
 
 use anyhow::{Context, Result};
 use config::{Config, File, FileFormat};
+use once_cell::sync::Lazy;
+use regex::{Captures, Regex};
 use serde::{Deserialize, Serialize};
 
 use crate::{artifact::Artifact, notifier::Notifier};
@@ -14,11 +16,13 @@ pub struct AppConfig {
 
 impl AppConfig {
     pub fn load(file_path: &str) -> Result<Self> {
-        let raw_config = fs::read_to_string(file_path).context("Failed to read config file")?;
-        let modified_config_data = replace_env_placeholders(raw_config);
+        let mut config = fs::read_to_string(file_path)
+            .with_context(|| format!("Failed to read config file {}", file_path))?;
+
+        replace_env_placeholders(&mut config);
 
         let config = Config::builder()
-            .add_source(File::from_str(&modified_config_data, FileFormat::Json))
+            .add_source(File::from_str(&config, FileFormat::Json))
             .build()
             .context("Failed to load config file")?;
 
@@ -66,18 +70,22 @@ impl AppConfig {
     }
 }
 
-// TODO: maybe make the regex a static variable with lazy_static?
-//
-//  lazy_static! {
-//    static ref RE: Regex = Regex::new(r"\$\{([^}]+)\}").unwrap();
-//  }
-fn replace_env_placeholders(config: String) -> String {
-    // Use a regex to find and replace placeholders
-    let re = regex::Regex::new(r"\$\{([^}]+)\}").unwrap();
-    re.replace_all(&config, |caps: &regex::Captures| {
-        env::var(&caps[1]).unwrap_or_else(|_| caps[0].to_string())
-    })
-    .into_owned()
+static RE_ENV: Lazy<Regex> = Lazy::new(|| Regex::new(r"\$\{([^}]+)\}").expect("Invalid regex"));
+
+fn replace_env_placeholders(config: &mut String) {
+    let result = RE_ENV.replace_all(config, |caps: &Captures| {
+        // caps[0] is "${VAR}"
+        // caps[1] is "VAR"
+        let var_name = &caps[1];
+        match env::var(var_name) {
+            Ok(val) => val,
+            Err(_) => panic!("Could not find env.var = {}", &caps[0]),
+        }
+    });
+
+    if let Cow::Owned(new_content) = result {
+        *config = new_content;
+    }
 }
 
 #[derive(Debug, Serialize)]
@@ -203,8 +211,8 @@ mod tests {
     #[test]
     fn test_replace_env_placeholders() {
         env::set_var("TEST_VAR", "test_value");
-        let config = "key=${TEST_VAR}".to_string();
-        let result = replace_env_placeholders(config);
-        assert_eq!(result, "key=test_value");
+        let mut config = "key=${TEST_VAR}".to_string();
+        replace_env_placeholders(&mut config);
+        assert_eq!(config, "key=test_value");
     }
 }
