@@ -32,7 +32,7 @@ impl SourceChecker for DockerHubSource {
         let response = fetch_dockerhub_tags(&source).await?;
 
         // TODO: we need to fetch the next results of the paginated response
-        // when there were no matches an the current version was not in the first response
+        // when there were no matches and the current version was not in the first response
         let newer_versions = response
             .results
             .iter()
