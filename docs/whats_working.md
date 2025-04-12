@@ -8,7 +8,7 @@
 
 ## Sources
 
-| Status       | Features    |
+| **Status**   | **Features** |
 | ------------ | ----------- |
 | ✅ Supported | GitHub      |
 | ✅ Supported | Artifacthub |
@@ -16,7 +16,7 @@
 
 ## Sinks
 
-| Status           | Features        |
+| **Status**   | **Features** |
 | ---------------- | --------------- |
 | ✅ Supported     | Generic Webhook |
 | ✅ Supported     | Email           |
@@ -25,8 +25,8 @@
 
 ## Features
 
-| Status       | Features                             |
+| **Status**   | **Features** |
 | ------------ | ------------------------------------ |
-| ✅ Supported | multiple notifiers for a sink        |
+| ✅ Supported | multiple artifacts for a notifier    |
 | ✅ Supported | environment variables in config file |
 | ✅ Supported | multiple recipients for email sink   |

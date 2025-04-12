@@ -6,14 +6,14 @@ For the identifier value you just take the part of the url with the `username/re
 
 ```
 {
+  "id": "rust",
   "name": "Rust",
   "message_prefix": "There is a new version of:", // optional
   "source": {
     "type": "github",
     "identifier": "rust-lang/rust"
   },
-  "current_version": "",
-  "notifier": ["team_slack", "private_email"]
+  "current_version": "1.82.0",
 },
 ```
 
@@ -23,6 +23,7 @@ For the identifier value you just take the part of the url with the `kind/organi
 
 ```
 {
+  "id": "keycloak_helm_chart",
   "name": "Keycloak Helm Chart",
   "message_prefix": "There is a new version of:", // optional
   "current_version": "24.3.1",
@@ -30,7 +31,6 @@ For the identifier value you just take the part of the url with the `kind/organi
     "type": "artifacthub",
     "identifier": "helm/bitnami/keycloak"
   },
-  "notifier": ["generic_webhook", "team_google_chat"]
 },
 ```
 
@@ -41,6 +41,7 @@ Official images have a special syntax `_/nginx` for example. For these you just 
 
 ```
 {
+  "id": "nginx_dockerhub",
   "name": "nginx",
   "message_prefix": "There is a new version of:", // optional
   "current_version": "1.25.2-alpine3.20-perl",
@@ -48,6 +49,5 @@ Official images have a special syntax `_/nginx` for example. For these you just 
     "type": "dockerhub",
     "identifier": "nginx"
   },
-  "notifier": ["private_email"]
 }
 ```

@@ -13,7 +13,8 @@
     "password": "${EMAIL_PASSWORD}",
     "to": "recipient@somemail.com",
     "subject": "New version available" // optional - default: "New version available"
-  }
+  },
+  "artifact_ids": ["rust"]
 }
 ```
 
@@ -27,7 +28,8 @@ The webhook value is just the `url` to the webhook. `Slack` and `Google Chat` us
   "sink": {
     "type": "webhook",
     "webhook": ".."
-  }
+  },
+  "artifact_ids": ["rust", "nginx_dockerhub"]
 }
 ```
 
@@ -39,7 +41,8 @@ The webhook value is just the `url` to the webhook. `Slack` and `Google Chat` us
   "sink": {
     "type": "slack",
     "webhook": ".."
-  }
+  },
+  "artifact_ids": ["keycloak_helm_chart", "nginx_dockerhub"]
 }
 ```
 
@@ -51,6 +54,7 @@ The webhook value is just the `url` to the webhook. `Slack` and `Google Chat` us
   "sink": {
     "type": "google_chat",
     "webhook": "..."
-  }
+  },
+  "artifact_ids": ["rust", "keycloak_helm_chart", "nginx_dockerhub"]
 }
 ```

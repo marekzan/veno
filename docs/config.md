@@ -2,13 +2,22 @@
 {
   "artifacts": [
     {
+      "id": "rust",
       "name": "Rust",
       "current_version": "1.82.0",
       "source": {
         "type": "github",
         "identifier": "rust-lang/rust"
       },
-      "notifier": ["private_email", "google_chat"]
+    }
+    {
+      "id": "kubernetes",
+      "name": "Kubernetes",
+      "current_version": "1.0.0",
+      "source": {
+        "type": "github",
+        "identifier": "kubernetes/kubernetes"
+      },
     }
   ],
   "notifiers": [
@@ -23,6 +32,7 @@
         "to": ["my_email@account.com"],
         "subject": "New version of"
       }
+      "artifact_ids": ["rust"]
     },
     {
       "name": "team_google_chat",
@@ -30,6 +40,7 @@
         "type": "google_chat",
         "webhook": "https://google_chat.com/webhook"
       }
+      "artifact_ids": ["rust", "kubernetes"]
     }
   ]
 }
