@@ -1,29 +1,42 @@
 use std::sync::Arc;
 
-use veno_core::config::AppConfig;
+use veno_core::app::AppState;
 
-use axum::{extract::State, http::StatusCode, response::IntoResponse, routing::get, Router};
+use axum::{
+    extract::State,
+    http::{header, StatusCode},
+    response::IntoResponse,
+    routing::get,
+    Router,
+};
 
-pub async fn routes(config: AppConfig) {
-    let shared_config = Arc::new(config);
+pub async fn routes(app: AppState) {
+    let app = Arc::new(app);
     let app = Router::new()
         .route("/check", get(check))
         // .route("/users", post(create_user))
-        .with_state(shared_config);
+        .with_state(app);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, app).await.unwrap();
 }
 
 // basic handler that responds with a static string
-async fn check(State(config): State<Arc<AppConfig>>) -> impl IntoResponse {
-    match config.check_artifacts().await {
-        Ok(response) => (StatusCode::OK, response),
+async fn check(State(app): State<Arc<AppState>>) -> impl IntoResponse {
+    match app.check_all_artifacts().await {
+        Ok(response) => (
+            StatusCode::OK,
+            [(header::CONTENT_TYPE, "application/json")],
+            response,
+        ),
         Err(e) => {
             println!("Error: {}", e);
             (
                 StatusCode::INTERNAL_SERVER_ERROR,
-                String::from("Internal Server Error"),
+                [(header::CONTENT_TYPE, "text/plain")],
+                String::from(
+                    "There was an error while checking for new versions. Please try again later.",
+                ),
             )
         }
     }

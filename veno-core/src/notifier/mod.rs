@@ -15,6 +15,7 @@ static DEFAULT_MESSAGE_PREFIX: &str = "New version available for";
 pub struct Notifier {
     pub name: String,
     pub sink: Sink,
+    pub artifact_ids: Vec<String>,
 }
 
 #[derive(Deserialize, Debug, Clone)]
@@ -31,12 +32,12 @@ pub enum Sink {
 }
 
 impl Sink {
-    pub async fn send(&self, message: &str) {
+    pub async fn send(&self, notification: &str) {
         match self {
-            Sink::Slack(sender) => sender.send(message).await,
-            Sink::Email(sender) => sender.send(message).await,
-            Sink::GoogleChat(sender) => sender.send(message).await,
-            Sink::Webhook(sender) => sender.send(message).await,
+            Sink::Slack(sink) => sink.send(notification).await,
+            Sink::Email(sink) => sink.send(notification).await,
+            Sink::GoogleChat(sink) => sink.send(notification).await,
+            Sink::Webhook(sink) => sink.send(notification).await,
         }
     }
 }

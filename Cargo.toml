@@ -1,3 +1,7 @@
 [workspace]
-members = ["cli", "core", "web"]
+members = ["veno-cli", "veno-core", "veno-web"]
 resolver = "2"
+
+[workspace.dependencies]
+anyhow = "1.0.97"
+tokio = { version = "1.41.1", features = ["rt-multi-thread", "macros"] }

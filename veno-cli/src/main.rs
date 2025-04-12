@@ -1,10 +1,7 @@
 use anyhow::Result;
-use veno_core::config::AppConfig;
+use veno_core::app::AppState;
 
 use clap::Parser;
-use endpoints::routes;
-
-mod endpoints;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -16,7 +13,9 @@ struct Cli {
 #[tokio::main]
 async fn main() -> Result<()> {
     let cli = Cli::parse();
-    let config = AppConfig::load(&cli.config)?;
-    routes(config.clone()).await;
+    let app = AppState::init(&cli.config)?;
+
+    app.notify().await;
+
     Ok(())
 }
