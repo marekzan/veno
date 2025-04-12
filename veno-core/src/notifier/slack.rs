@@ -9,10 +9,10 @@ pub struct SlackSink {
 }
 
 impl SinkSender for SlackSink {
-    async fn send(&self, message: &str) {
+    async fn send(&self, notification: &str) {
         // here we will build a default slack message
         let payload = json!({
-            "text": message.to_string(),
+            "text": notification.to_string(),
         });
 
         webhook::call(&self.webhook, &payload).await;
