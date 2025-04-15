@@ -1,6 +1,6 @@
 use anyhow::{Context, Result};
 use futures::future::join_all;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 use crate::{
     artifact::Artifact,
@@ -41,31 +41,6 @@ impl AppState {
             notifier.sink.send(&notification).await;
         }
     }
-
-    // This function will check all  artifacts if they are behind the latest version
-    pub async fn check_all_artifacts(&self) -> Result<String> {
-        let mut new_versions = Vec::new();
-
-        let check_futures = self
-            .artifacts
-            .iter()
-            .map(|artifact| async move { (artifact, artifact.is_version_behind().await) });
-
-        let checked_artifacts = join_all(check_futures).await;
-
-        for (artifact, result) in checked_artifacts {
-            if let Ok(Some(latest_version)) = result {
-                new_versions.push(CheckedArtifact {
-                    name: artifact.name.clone(),
-                    current_version: artifact.current_version.clone(),
-                    latest_version,
-                });
-            }
-        }
-        let new_versions =
-            serde_json::to_string(&new_versions).context("Failed to serialize new versions")?;
-        Ok(new_versions)
-    }
 }
 
 async fn generate_notification(artifacts: &Vec<(&Artifact, Result<Option<String>>)>) -> String {
@@ -89,11 +64,4 @@ async fn generate_notification(artifacts: &Vec<(&Artifact, Result<Option<String>
     }
 
     messages.join("\n")
-}
-
-#[derive(Debug, Serialize)]
-struct CheckedArtifact {
-    name: String,
-    current_version: String,
-    latest_version: String,
 }

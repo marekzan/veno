@@ -15,7 +15,7 @@ pub struct Artifact {
 }
 
 impl Artifact {
-    pub(super) async fn is_version_behind(&self) -> Result<Option<String>> {
+    pub async fn is_version_behind(&self) -> Result<Option<String>> {
         self.source.is_version_behind(&self.current_version).await
     }
 }
