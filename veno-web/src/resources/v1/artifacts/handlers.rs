@@ -6,11 +6,17 @@ use axum::{
     response::IntoResponse,
     Json,
 };
+use serde_json::json;
+use utoipa::OpenApi;
 use veno_core::app::AppState;
 
-use crate::resources::errors::PathParamError;
+use crate::resources::errors::{InternalServerError, PathParamError};
 
 use super::{model::ArtifactResponse, service::check_all_artifacts};
+
+#[derive(OpenApi)]
+#[openapi()]
+pub struct ArtifactsApi;
 
 #[utoipa::path(
     get,
@@ -20,13 +26,34 @@ use super::{model::ArtifactResponse, service::check_all_artifacts};
     )
 )]
 pub async fn check_versions(State(app): State<Arc<AppState>>) -> impl IntoResponse {
-    // TODO this should be able to fail and return an error response
     let response = check_all_artifacts(&app.artifacts).await;
-    (
-        StatusCode::OK,
-        [(header::CONTENT_TYPE, "application/json")],
-        Json(response),
-    )
+    match response {
+        Ok(Some(new_versions)) => (
+            StatusCode::OK,
+            [(header::CONTENT_TYPE, "application/json")],
+            Json(new_versions),
+        )
+            .into_response(),
+        Ok(None) => (
+            StatusCode::OK,
+            [(header::CONTENT_TYPE, "application/json")],
+            Json(json!({"message": "There are currently no new versions of your artifacts"})),
+        )
+            .into_response(),
+        Err(err) => {
+            let error = InternalServerError {
+                error_code: StatusCode::INTERNAL_SERVER_ERROR.to_string(),
+                message: format!("There was an error while executing your request: {}", err),
+            };
+
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                [(header::CONTENT_TYPE, "application/json")],
+                Json(error),
+            )
+                .into_response()
+        }
+    }
 }
 
 pub async fn all_artifacts(State(app): State<Arc<AppState>>) -> impl IntoResponse {

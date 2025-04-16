@@ -1,7 +1,8 @@
 use anyhow::Result;
 use futures::future::join_all;
-use serde::Serialize;
 use veno_core::artifact::Artifact;
+
+use super::model::CheckedArtifact;
 
 pub async fn check_all_artifacts(
     artifacts: &Vec<Artifact>,
@@ -23,16 +24,14 @@ pub async fn check_all_artifacts(
                     latest_version,
                 });
             }
-            Ok(None) => return Ok(None),
-            Err(err) => return err,
+            Ok(None) => {}
+            Err(err) => return Err(err),
         }
     }
-    Ok(Some(new_versions))
-}
 
-#[derive(Debug, Serialize)]
-pub struct CheckedArtifact {
-    name: String,
-    current_version: String,
-    latest_version: String,
+    if new_versions.is_empty() {
+        return Ok(None);
+    }
+
+    Ok(Some(new_versions))
 }

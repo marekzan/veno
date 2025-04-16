@@ -22,5 +22,5 @@ pub async fn serve_api(app: Arc<AppState>) {
         .with_state(app);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
-    axum::serve(listener, router).await.unwrap();
+    axum::serve(listener, router.into_make_service()).await.unwrap();
 }

@@ -7,3 +7,9 @@ pub struct PathParamError {
     pub param: String,
     pub message: String,
 }
+
+#[derive(Serialize, Debug, Clone)]
+pub struct InternalServerError {
+    pub error_code: String,
+    pub message: String,
+}

@@ -63,3 +63,10 @@ impl From<Source> for SourceDto {
         }
     }
 }
+
+#[derive(Debug, Serialize)]
+pub struct CheckedArtifact {
+    pub name: String,
+    pub current_version: String,
+    pub latest_version: String,
+}
