@@ -29,11 +29,21 @@ impl SourceChecker for GitHubSource {
             return Err(anyhow!("Request failed: {:?}", response));
         }
 
-        // Parse the JSON response
-        let release: Release = response
-            .json()
-            .await
-            .context("Failed to parse JSON response")?;
+        // // Parse the JSON response
+        // let release: Release = match response.json().await {
+        //     Ok(json) => json,
+        //     Err(err) => {
+        //         let error_message = format!("Failed to parse JSON response: {}", err);
+        //         println!("{}", error_message);
+        //         return Err(anyhow!(error_message));
+        //     }
+        // };
+
+        //TODO make error responses more robust
+        let release: Release = response.json().await.map_err(|err| {
+            println!("added context: {}", err);
+            err
+        })?;
 
         // Extract and compare the version
         // TODO: change this logic to be used with the version checker but we first need to

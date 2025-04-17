@@ -1,10 +1,12 @@
+use std::sync::Arc;
+
 use anyhow::Result;
+use resources::serve_api;
 use veno_core::app::AppState;
 
 use clap::Parser;
-use endpoints::routes;
 
-mod endpoints;
+mod resources;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -16,7 +18,7 @@ struct Cli {
 #[tokio::main]
 async fn main() -> Result<()> {
     let cli = Cli::parse();
-    let config = AppState::init(&cli.config)?;
-    routes(config.clone()).await;
+    let app = Arc::new(AppState::init(&cli.config)?);
+    serve_api(app).await;
     Ok(())
 }

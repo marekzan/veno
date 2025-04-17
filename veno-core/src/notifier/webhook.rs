@@ -20,6 +20,7 @@ impl SinkSender for WebhookSink {
     }
 }
 
+// TODO this needs to bubble so we can return an error to the user
 pub async fn call(webhook: &str, payload: &Value) {
     match CLIENT
         .post(webhook)
