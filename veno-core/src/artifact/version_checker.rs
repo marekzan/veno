@@ -12,7 +12,8 @@ fn parse_version(version: &str) -> Vec<VersionPart> {
     let separators = ['.', '-', ':'];
 
     version
-        .split(|c| separators.contains(&c))
+        .split(|char| separators.contains(&char))
+        // TODO this is currently not respecting versions which start with a v (v1) or other special cases (rc1).
         .map(|part| match part.parse::<i32>() {
             Ok(num) => VersionPart::Number(num),
             Err(_) => VersionPart::Text(part),

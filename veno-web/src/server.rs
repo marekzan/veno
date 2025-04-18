@@ -16,7 +16,7 @@ pub async fn run(app: Arc<AppState>) {
         .with_state(app);
 
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
-    info!("Axum server is now running");
+    info!("Axum server is running");
     axum::serve(listener, router.into_make_service())
         .await
         .unwrap();
