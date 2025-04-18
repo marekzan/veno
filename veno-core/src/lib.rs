@@ -1,6 +1,7 @@
 pub mod app;
 pub mod artifact;
 pub mod config;
+pub mod error;
 pub mod notifier;
 
 use std::time::Duration;

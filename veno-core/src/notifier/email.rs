@@ -1,7 +1,8 @@
-use anyhow::Result;
+use std::{error::Error, fmt::Display};
+
 use lettre::{
-    message::header::ContentType, transport::smtp::authentication::Credentials, Message,
-    SmtpTransport, Transport,
+    address::AddressError, message::header::ContentType,
+    transport::smtp::authentication::Credentials, Message, SmtpTransport, Transport,
 };
 use serde::Deserialize;
 
@@ -14,6 +15,7 @@ pub struct EmailSink {
     pub username: String,
     pub password: String,
     pub to: Vec<String>,
+    pub subject: Option<String>,
 }
 
 impl SinkSender for EmailSink {
@@ -27,7 +29,7 @@ impl SinkSender for EmailSink {
         };
 
         self.to.iter().for_each(|to| {
-            let email = match create_message(&self.username, to, message) {
+            let email = match create_message(&self.username, to, &self.subject, message) {
                 Ok(email) => email,
                 Err(e) => {
                     eprintln!("Failed to create email: {:?}", e);
@@ -36,20 +38,24 @@ impl SinkSender for EmailSink {
             };
 
             if let Err(e) = mailer.send(&email) {
-                eprintln!("Failed to close mailer: {:?}", e);
+                eprintln!("Failed to send email: {:?}", e);
             }
         });
     }
 }
 
-fn create_message(from: &str, to: &str, message: &str) -> Result<Message> {
+fn create_message(
+    from: &str,
+    to: &str,
+    subject: &Option<String>,
+    message: &str,
+) -> Result<Message> {
     let email = Message::builder()
         .from(format!("VENO <{}>", from).parse()?)
         .to(to.parse()?)
-        .subject("VENO: New version available!")
+        .subject(subject.as_deref().unwrap_or("New versions available"))
         .header(ContentType::TEXT_PLAIN)
-        .body(message.to_string())
-        .unwrap();
+        .body(message.to_string())?;
 
     Ok(email)
 }
@@ -67,4 +73,54 @@ fn create_mailer(
         .build();
 
     Ok(mailer)
+}
+
+type Result<T> = std::result::Result<T, EmailError>;
+
+#[derive(Debug)]
+pub enum EmailError {
+    Address(AddressError),
+    Build(lettre::error::Error),
+    SMTPError(lettre::transport::smtp::Error),
+}
+
+impl Display for EmailError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            EmailError::Address(e) => write!(f, "Address parsing error: {e}"),
+            EmailError::Build(e) => write!(f, "Message build error: {e}"),
+            EmailError::SMTPError(e) => write!(
+                f,
+                "There was an error regarding the smtp configuration: {e}"
+            ),
+        }
+    }
+}
+
+impl Error for EmailError {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        match self {
+            EmailError::Address(e) => Some(e),
+            EmailError::Build(e) => Some(e),
+            EmailError::SMTPError(e) => Some(e),
+        }
+    }
+}
+
+impl From<AddressError> for EmailError {
+    fn from(value: AddressError) -> Self {
+        EmailError::Address(value)
+    }
+}
+
+impl From<lettre::error::Error> for EmailError {
+    fn from(value: lettre::error::Error) -> Self {
+        EmailError::Build(value)
+    }
+}
+
+impl From<lettre::transport::smtp::Error> for EmailError {
+    fn from(value: lettre::transport::smtp::Error) -> Self {
+        EmailError::SMTPError(value)
+    }
 }

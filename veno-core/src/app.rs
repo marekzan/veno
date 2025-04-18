@@ -25,20 +25,22 @@ impl AppState {
 
     pub async fn notify(&self) {
         for notifier in &self.notifiers {
-            // get all artifacts that match this notifier
-            let matched_artifacts = self
-                .artifacts
-                .iter()
-                .filter(|artifact| notifier.artifact_ids.contains(&artifact.id))
-                .collect::<Vec<&Artifact>>();
+            if notifier.artifact_ids.len() > 0 {
+                // get all artifacts that match this notifier
+                let matched_artifacts = self
+                    .artifacts
+                    .iter()
+                    .filter(|artifact| notifier.artifact_ids.contains(&artifact.id))
+                    .collect::<Vec<&Artifact>>();
 
-            let check_futures = matched_artifacts
-                .iter()
-                .map(|artifact| async move { (*artifact, artifact.is_version_behind().await) });
-            let checked_artifacts = join_all(check_futures).await;
+                let check_futures = matched_artifacts
+                    .iter()
+                    .map(|artifact| async move { (*artifact, artifact.is_version_behind().await) });
+                let checked_artifacts = join_all(check_futures).await;
 
-            let notification = generate_notification(&checked_artifacts).await;
-            notifier.sink.send(&notification).await;
+                let notification = generate_notification(&checked_artifacts).await;
+                notifier.sink.send(&notification).await;
+            }
         }
     }
 }

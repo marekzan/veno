@@ -1,23 +1,25 @@
-use anyhow::{Context, Result};
+use anyhow::Result;
 use std::{borrow::Cow, env, fs};
 
 use config::{Config, File, FileFormat};
 use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
 
+use crate::error::ConfigError;
+
 pub struct AppConfig;
 
 impl AppConfig {
     pub fn load(file_path: &str) -> Result<Config> {
         let mut config =
-            fs::read_to_string(file_path).context("Could not read config file from filesystem")?;
+            fs::read_to_string(file_path).map_err(|err| ConfigError::FailedToRead(err))?;
 
         replace_env_placeholders(&mut config);
 
         let config = Config::builder()
             .add_source(File::from_str(&config, FileFormat::Json))
             .build()
-            .context("Could not build Config from raw config string")?;
+            .map_err(|err| ConfigError::FailedToBuild(err.to_string()))?;
 
         Ok(config)
     }
