@@ -1,20 +1,13 @@
 use anyhow::Result;
-use futures::future::join_all;
 use tracing::error;
-use veno_core::artifact::Artifact;
+use veno_core::app::AppState;
 
 use super::model::CheckedArtifact;
 
-pub async fn check_all_artifacts(
-    artifacts: &Vec<Artifact>,
-) -> Result<Option<Vec<CheckedArtifact>>> {
+pub async fn check_all_artifacts(app: &AppState) -> Result<Option<Vec<CheckedArtifact>>> {
     let mut new_versions = Vec::new();
 
-    let check_futures = artifacts
-        .iter()
-        .map(|artifact| async move { (artifact, artifact.is_version_behind().await) });
-
-    let checked_artifacts = join_all(check_futures).await;
+    let checked_artifacts = app.check_all_artifacts().await;
 
     for (artifact, result) in checked_artifacts {
         match result {

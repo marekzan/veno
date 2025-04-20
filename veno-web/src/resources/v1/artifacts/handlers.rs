@@ -26,7 +26,7 @@ pub struct ArtifactsApi;
     )
 )]
 pub async fn check_versions(State(app): State<Arc<AppState>>) -> impl IntoResponse {
-    let response = check_all_artifacts(&app.artifacts).await;
+    let response = check_all_artifacts(&app).await;
     match response {
         Ok(Some(new_versions)) => (
             StatusCode::OK,

@@ -33,14 +33,34 @@ impl AppState {
                 .filter(|artifact| notifier.artifact_ids.contains(&artifact.id))
                 .collect::<Vec<&Artifact>>();
 
-            let check_futures = matched_artifacts
-                .iter()
-                .map(|artifact| async move { (*artifact, artifact.is_version_behind().await) });
-            let checked_artifacts = join_all(check_futures).await;
+            let checked_artifacts = Self::check_artifacts(matched_artifacts).await;
 
             let notification = generate_notification(&checked_artifacts).await;
             notifier.sink.send(&notification).await;
         }
+    }
+
+    pub async fn check_all_artifacts(&self) -> Vec<(&Artifact, Result<Option<String>>)> {
+        Self::check_artifacts(&self.artifacts).await
+    }
+
+    pub async fn check_artifacts<'a, I>(
+        artifacts_iter: I,
+    ) -> Vec<(&'a Artifact, Result<Option<String>>)>
+    where
+        I: IntoIterator<Item = &'a Artifact>,
+    {
+        let check_futures = artifacts_iter.into_iter().map(|artifact| async move {
+            (
+                artifact,
+                artifact
+                    .source
+                    .check_new_version(&artifact.current_version)
+                    .await,
+            )
+        });
+
+        join_all(check_futures).await
     }
 }
 
