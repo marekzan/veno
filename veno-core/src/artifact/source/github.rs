@@ -16,7 +16,7 @@ struct Release {
 const GITHUB_API: &str = "https://api.github.com/repos";
 
 impl SourceChecker for GitHubSource {
-    async fn is_version_behind(&self, current_version: &str) -> Result<Option<String>> {
+    async fn check_new_version(&self, current_version: &str) -> Result<Option<String>> {
         let source = format!("{}/{}/releases/latest", GITHUB_API, self.identifier);
 
         // Send the HTTP request

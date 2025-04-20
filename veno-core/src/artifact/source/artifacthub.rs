@@ -17,7 +17,7 @@ struct Package {
 const ARTIFACTHUB_API: &str = "https://artifacthub.io/api/v1/packages";
 
 impl SourceChecker for ArtifactHubSource {
-    async fn is_version_behind(&self, current_version: &str) -> Result<Option<String>> {
+    async fn check_new_version(&self, current_version: &str) -> Result<Option<String>> {
         let source = format!("{}/{}", ARTIFACTHUB_API, &self.identifier);
 
         let response = get(&source)

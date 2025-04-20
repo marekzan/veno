@@ -27,7 +27,7 @@ const DOCKERHUB_API: &str = "https://hub.docker.com/v2/repositories";
 const PAGE_SIZE_QUERY_PARAM: &str = "page_size=200";
 
 impl SourceChecker for DockerHubSource {
-    async fn is_version_behind(&self, current_version: &str) -> Result<Option<String>> {
+    async fn check_new_version(&self, current_version: &str) -> Result<Option<String>> {
         let source = build_dockerhub_url(&self.identifier);
         let response = fetch_dockerhub_tags(&source).await?;
 
