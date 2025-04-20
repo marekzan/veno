@@ -19,28 +19,20 @@ pub struct EmailSink {
 }
 
 impl SinkSender for EmailSink {
-    async fn send(&self, message: &str) {
-        let mailer = match create_mailer(&self.host, self.port, &self.username, &self.password) {
-            Ok(mailer) => mailer,
-            Err(e) => {
-                eprintln!("Failed to create mailer: {:?}", e);
-                return;
-            }
-        };
+    async fn send(&self, message: &str) -> super::Result<()> {
+        let mailer = create_mailer(&self.host, self.port, &self.username, &self.password)?;
 
-        self.to.iter().for_each(|to| {
-            let email = match create_message(&self.username, to, &self.subject, message) {
-                Ok(email) => email,
-                Err(e) => {
-                    eprintln!("Failed to create email: {:?}", e);
-                    return;
-                }
-            };
+        for to in &self.to {
+            let email = create_message(&self.username, to, &self.subject, message)?;
+            // NOTE it seems as if the ? operator only does a direct conversion of error.
+            // even though we have a smtperror -> emailerror -> sinkerror conversion via the from trait,
+            // we still need to explicitly call the from function.
+            // maybe it's better to return the original error until we want to handle the errors and wrap them there for further
+            // usage. this would reduce the From<> implementations
+            mailer.send(&email).map_err(EmailError::from)?;
+        }
 
-            if let Err(e) = mailer.send(&email) {
-                eprintln!("Failed to send email: {:?}", e);
-            }
-        });
+        Ok(())
     }
 }
 
@@ -81,7 +73,7 @@ type Result<T> = std::result::Result<T, EmailError>;
 pub enum EmailError {
     Address(AddressError),
     Build(lettre::error::Error),
-    SMTPError(lettre::transport::smtp::Error),
+    Send(lettre::transport::smtp::Error),
 }
 
 impl Display for EmailError {
@@ -89,10 +81,7 @@ impl Display for EmailError {
         match self {
             EmailError::Address(e) => write!(f, "Address parsing error: {e}"),
             EmailError::Build(e) => write!(f, "Message build error: {e}"),
-            EmailError::SMTPError(e) => write!(
-                f,
-                "There was an error regarding the smtp configuration: {e}"
-            ),
+            EmailError::Send(e) => write!(f, "Sending email error: {e}"),
         }
     }
 }
@@ -102,7 +91,7 @@ impl Error for EmailError {
         match self {
             EmailError::Address(e) => Some(e),
             EmailError::Build(e) => Some(e),
-            EmailError::SMTPError(e) => Some(e),
+            EmailError::Send(e) => Some(e),
         }
     }
 }
@@ -121,6 +110,6 @@ impl From<lettre::error::Error> for EmailError {
 
 impl From<lettre::transport::smtp::Error> for EmailError {
     fn from(value: lettre::transport::smtp::Error) -> Self {
-        EmailError::SMTPError(value)
+        EmailError::Send(value)
     }
 }
