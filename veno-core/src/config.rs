@@ -1,8 +1,7 @@
 use anyhow::{Context, Result};
-use std::{borrow::Cow, env, fs};
+use std::{borrow::Cow, env, fs, sync::LazyLock};
 
 use config::{Config, File, FileFormat};
-use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
 
 pub struct AppConfig;
@@ -23,7 +22,8 @@ impl AppConfig {
     }
 }
 
-static RE_ENV: Lazy<Regex> = Lazy::new(|| Regex::new(r"\$\{([^}]+)\}").expect("Invalid regex"));
+static RE_ENV: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"\$\{([^}]+)\}").expect("Invalid regex"));
 
 fn replace_env_placeholders(config: &mut String) {
     let result = RE_ENV.replace_all(config, |caps: &Captures| {

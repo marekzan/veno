@@ -3,13 +3,12 @@ pub mod artifact;
 pub mod config;
 pub mod notifier;
 
-use std::time::Duration;
+use std::{sync::LazyLock, time::Duration};
 
 use anyhow::Result;
-use once_cell::sync::Lazy;
 use reqwest::{Client, ClientBuilder, Response};
 
-static CLIENT: Lazy<Client> = Lazy::new(|| {
+static CLIENT: LazyLock<Client> = LazyLock::new(|| {
     ClientBuilder::new()
         .user_agent("veno")
         .build()
