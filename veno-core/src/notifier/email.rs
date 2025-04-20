@@ -4,6 +4,7 @@ use lettre::{
     SmtpTransport, Transport,
 };
 use serde::Deserialize;
+use tracing::error;
 
 use super::SinkSender;
 
@@ -21,7 +22,7 @@ impl SinkSender for EmailSink {
         let mailer = match create_mailer(&self.host, self.port, &self.username, &self.password) {
             Ok(mailer) => mailer,
             Err(e) => {
-                eprintln!("Failed to create mailer: {:?}", e);
+                error!("Failed to create mailer: {:?}", e);
                 return;
             }
         };
@@ -30,13 +31,13 @@ impl SinkSender for EmailSink {
             let email = match create_message(&self.username, to, message) {
                 Ok(email) => email,
                 Err(e) => {
-                    eprintln!("Failed to create email: {:?}", e);
+                    error!("Failed to create email: {:?}", e);
                     return;
                 }
             };
 
             if let Err(e) = mailer.send(&email) {
-                eprintln!("Failed to close mailer: {:?}", e);
+                error!("Failed to close mailer: {:?}", e);
             }
         });
     }

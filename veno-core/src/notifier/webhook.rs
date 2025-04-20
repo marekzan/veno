@@ -1,6 +1,7 @@
 use crate::CLIENT;
 use serde::Deserialize;
 use serde_json::{json, Value};
+use tracing::error;
 
 use super::SinkSender;
 
@@ -30,7 +31,7 @@ pub async fn call(webhook: &str, payload: &Value) {
         .await
     {
         Ok(response) if response.status().is_success() => (),
-        Ok(response) => eprintln!("Error sending message: {:?}", response),
-        Err(err) => eprintln!("Error sending message: {:?}", err),
+        Ok(response) => error!("Error sending message: {:?}", response),
+        Err(err) => error!("Error sending message: {:?}", err),
     }
 }

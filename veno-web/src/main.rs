@@ -1,7 +1,8 @@
-use std::sync::Arc;
+use std::{env, sync::Arc};
 
 use anyhow::Result;
 use resources::serve_api;
+use tracing::{error, level_filters::LevelFilter};
 use veno_core::app::AppState;
 
 use clap::Parser;
@@ -13,12 +14,48 @@ mod resources;
 struct Cli {
     #[arg(short, long)]
     config: String,
+
+    #[arg(short, long("log-level"))]
+    log_level: Option<String>,
 }
 
 #[tokio::main]
 async fn main() -> Result<()> {
     let cli = Cli::parse();
+    init_tracing_subscriber(&cli.log_level);
     let app = Arc::new(AppState::init(&cli.config)?);
     serve_api(app).await;
     Ok(())
+}
+
+fn init_tracing_subscriber(log_level: &Option<String>) {
+    let log_level = match log_level {
+        Some(level) => parse_level_str(level, "'log-level' argument"),
+        None => match env::var("VENO_LOG_LEVEL") {
+            Ok(level) => parse_level_str(&level, "'VENO_LOG_LEVEL' environment variable"),
+            Err(_) => LevelFilter::INFO,
+        },
+    };
+
+    tracing_subscriber::fmt()
+        .with_max_level(log_level)
+        .with_thread_ids(true)
+        .with_thread_names(true)
+        .with_file(true)
+        .with_line_number(true)
+        .with_target(false)
+        .init();
+}
+
+fn parse_level_str(level_str: &str, source_description: &str) -> LevelFilter {
+    match level_str.parse::<LevelFilter>() {
+        Ok(level) => level,
+        Err(_) => {
+            error!(
+                "WARN: Invalid value for {}. Valid log levels are 'trace', 'debug', 'info', 'warn', 'error'. Found: '{}'. Defaulting to 'info'",
+                source_description, level_str
+            );
+            LevelFilter::INFO
+        }
+    }
 }

@@ -20,30 +20,17 @@ impl SourceChecker for GitHubSource {
         let source = format!("{}/{}/releases/latest", GITHUB_API, self.identifier);
 
         // Send the HTTP request
-        let response = get(&source)
-            .await
-            .context("Failed to fetch latest release")?;
+        let response = get(&source).await.context(format!(
+            "Failed to fetch latest release for {} via github api",
+            &self.identifier
+        ))?;
 
         // Check for successful HTTP status
         if !response.status().is_success() {
             return Err(anyhow!("Request failed: {:?}", response));
         }
 
-        // // Parse the JSON response
-        // let release: Release = match response.json().await {
-        //     Ok(json) => json,
-        //     Err(err) => {
-        //         let error_message = format!("Failed to parse JSON response: {}", err);
-        //         println!("{}", error_message);
-        //         return Err(anyhow!(error_message));
-        //     }
-        // };
-
-        //TODO make error responses more robust
-        let release: Release = response.json().await.map_err(|err| {
-            println!("added context: {}", err);
-            err
-        })?;
+        let release: Release = response.json().await?;
 
         // Extract and compare the version
         // TODO: change this logic to be used with the version checker but we first need to

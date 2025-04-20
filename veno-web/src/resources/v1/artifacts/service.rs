@@ -1,5 +1,6 @@
 use anyhow::Result;
 use futures::future::join_all;
+use tracing::error;
 use veno_core::artifact::Artifact;
 
 use super::model::CheckedArtifact;
@@ -25,7 +26,13 @@ pub async fn check_all_artifacts(
                 });
             }
             Ok(None) => {}
-            Err(err) => return Err(err),
+            Err(err) => {
+                error!(
+                    "An error occured while checking for a new version for {}\n{}",
+                    artifact.name, err
+                );
+                return Err(err);
+            }
         }
     }
 

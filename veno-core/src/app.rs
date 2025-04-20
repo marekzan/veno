@@ -1,6 +1,7 @@
 use anyhow::{Context, Result};
 use futures::future::join_all;
 use serde::Deserialize;
+use tracing::{error, info};
 
 use crate::{
     artifact::Artifact,
@@ -55,8 +56,8 @@ async fn generate_notification(artifacts: &Vec<(&Artifact, Result<Option<String>
                 };
                 messages.push(message);
             }
-            Ok(None) => println!("There is no new version for artifact {}", artifact.name),
-            Err(err) => eprintln!(
+            Ok(None) => info!("There is no new version for artifact {}", artifact.name),
+            Err(err) => error!(
                 "There was an error while checking the new version for artifact {}: {}",
                 artifact.name, err
             ),
