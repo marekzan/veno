@@ -1,13 +1,13 @@
 use std::{env, sync::Arc};
 
 use anyhow::Result;
-use resources::serve_api;
 use tracing::{error, level_filters::LevelFilter};
 use veno_core::app::AppState;
 
 use clap::Parser;
 
 mod resources;
+mod server;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -24,7 +24,7 @@ async fn main() -> Result<()> {
     let cli = Cli::parse();
     init_tracing_subscriber(&cli.log_level);
     let app = Arc::new(AppState::init(&cli.config)?);
-    serve_api(app).await;
+    server::start(app).await?;
     Ok(())
 }
 
@@ -38,12 +38,13 @@ fn init_tracing_subscriber(log_level: &Option<String>) {
     };
 
     tracing_subscriber::fmt()
+        .compact()
         .with_max_level(log_level)
         .with_thread_ids(true)
-        .with_thread_names(true)
-        .with_file(true)
-        .with_line_number(true)
-        .with_target(false)
+        .with_thread_names(false)
+        .with_file(false)
+        .with_line_number(false)
+        .with_target(true)
         .init();
 }
 

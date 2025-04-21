@@ -24,6 +24,8 @@ impl AppState {
         Ok(app_state)
     }
 
+    // TODO implement error handling
+    // currently generate_notification and sink::send do not return a result
     pub async fn notify(&self) {
         for notifier in &self.notifiers {
             // get all artifacts that match this notifier

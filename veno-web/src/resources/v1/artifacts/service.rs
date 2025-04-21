@@ -5,7 +5,7 @@ use veno_core::app::AppState;
 use super::model::CheckedArtifact;
 
 pub async fn check_all_artifacts(app: &AppState) -> Result<Option<Vec<CheckedArtifact>>> {
-    let mut new_versions = Vec::new();
+    let mut new_versions: Vec<CheckedArtifact> = Vec::new();
 
     let checked_artifacts = app.check_all_artifacts().await;
 

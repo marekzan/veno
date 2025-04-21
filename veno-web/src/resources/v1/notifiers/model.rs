@@ -1,14 +1,15 @@
 use serde::Serialize;
+use utoipa::ToSchema;
 use veno_core::notifier::{Notifier, Sink};
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone, ToSchema)]
 pub struct NotifierResponse {
     pub name: String,
     pub sink: SinkDto,
     pub artifact_ids: Vec<String>,
 }
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone, ToSchema)]
 #[serde(tag = "type")] // Use tag-based enum for sink type
 pub enum SinkDto {
     #[serde(rename = "slack")]
@@ -21,12 +22,12 @@ pub enum SinkDto {
     Webhook(WebhookSink),
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, ToSchema)]
 pub struct SlackSink {
     pub webhook: String,
 }
 
-#[derive(Serialize, Clone, Debug)]
+#[derive(Serialize, Clone, Debug, ToSchema)]
 pub struct EmailSink {
     pub host: String,
     pub port: Option<u16>,
@@ -35,12 +36,12 @@ pub struct EmailSink {
     pub to: Vec<String>,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, ToSchema)]
 pub struct GoogleChatSink {
     pub webhook: String,
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, ToSchema)]
 pub struct WebhookSink {
     pub webhook: String,
 }
