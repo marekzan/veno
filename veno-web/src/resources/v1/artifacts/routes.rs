@@ -1,11 +1,12 @@
 use std::sync::Arc;
 
 use axum::{routing::get, Router};
-use veno_core::app::AppState;
+
+use crate::App;
 
 use super::handlers::{all_artifacts, artifact_for_id, check_versions};
 
-pub fn artifacts_routes() -> Router<Arc<AppState>> {
+pub fn artifacts_routes() -> Router<Arc<App>> {
     Router::new()
         .route("/", get(all_artifacts))
         .route("/{artifact_id}", get(artifact_for_id))

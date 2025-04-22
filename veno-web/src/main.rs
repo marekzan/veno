@@ -1,11 +1,14 @@
 use std::{env, sync::Arc};
 
 use anyhow::Result;
+use commands::{command_processor, Command};
+use tokio::sync::mpsc::{self, Sender};
 use tracing::{error, level_filters::LevelFilter};
 use veno_core::app::AppState;
 
 use clap::Parser;
 
+mod commands;
 mod resources;
 mod server;
 
@@ -19,11 +22,22 @@ struct Cli {
     log_level: Option<String>,
 }
 
+struct App {
+    config: AppState,
+    command_tx: Sender<Command>,
+}
+
 #[tokio::main]
 async fn main() -> Result<()> {
     let cli = Cli::parse();
     init_tracing_subscriber(&cli.log_level);
-    let app = Arc::new(AppState::init(&cli.config)?);
+    let config = AppState::init(&cli.config)?;
+    let (command_tx, command_rx) = mpsc::channel(100);
+    tokio::spawn(command_processor(command_rx));
+    let app = Arc::new(App {
+        config: config.clone(),
+        command_tx,
+    });
     server::start(app).await?;
     Ok(())
 }

@@ -1,11 +1,12 @@
 use std::sync::Arc;
 
 use axum::{routing::get, Router};
-use veno_core::app::AppState;
+
+use crate::App;
 
 use super::handlers::{all_notifiers, notifier_for_id, notify};
 
-pub fn notifiers_routes() -> Router<Arc<AppState>> {
+pub fn notifiers_routes() -> Router<Arc<App>> {
     Router::new()
         .route("/", get(all_notifiers))
         .route("/{notifier_id}", get(notifier_for_id))

@@ -1,16 +1,27 @@
-use std::sync::Arc;
+use std::{fmt::Display, sync::Arc, time::Duration};
 
-use crate::resources::errors::ResourceError;
+use crate::{
+    commands::{
+        artifact_commands::{ArtifactCommand, GetAllCommand},
+        Command,
+    },
+    resources::errors::ResourceError,
+    App,
+};
 use axum::{
-    extract::{Path, State},
-    http::StatusCode,
+    extract::{OriginalUri, Path, State},
+    http::{StatusCode, Uri},
     response::IntoResponse,
     Json,
 };
 use serde_json::json;
 use thiserror::Error;
+use tokio::{
+    sync::oneshot,
+    time::{timeout, Timeout},
+};
+use tracing::{error, info};
 use utoipa::OpenApi;
-use veno_core::app::AppState;
 
 use super::{model::ArtifactResponse, service::check_all_artifacts};
 
@@ -29,9 +40,10 @@ pub struct V1ArtifactsApi;
 )]
 #[tracing::instrument(level = tracing::Level::TRACE, skip_all)]
 pub async fn check_versions(
-    State(app): State<Arc<AppState>>,
+    State(app): State<Arc<App>>,
+    uri: OriginalUri,
 ) -> Result<impl IntoResponse, ResourceError> {
-    let response = check_all_artifacts(&app).await;
+    let response = check_all_artifacts(&app.config).await;
     match response {
         Ok(Some(new_versions)) => return Ok(Json(new_versions).into_response()),
         Ok(None) => {
@@ -40,9 +52,7 @@ pub async fn check_versions(
             )
             .into_response())
         }
-        Err(_err) => {
-            Err(ArtifactError::InternalServerError("/api/v1/artifacts/check".into()).into())
-        }
+        Err(_err) => Err(ArtifactError::InternalServerError(uri.0).into()),
     }
 }
 
@@ -54,13 +64,51 @@ pub async fn check_versions(
     )
 )]
 #[tracing::instrument(level = tracing::Level::TRACE, skip_all)]
-pub async fn all_artifacts(State(app): State<Arc<AppState>>) -> impl IntoResponse {
-    let artifacts: Vec<ArtifactResponse> = app
-        .artifacts
-        .iter()
-        .map(|artifact| ArtifactResponse::from(artifact.clone()))
-        .collect();
-    Json(artifacts)
+pub async fn all_artifacts(
+    State(app): State<Arc<App>>,
+    uri: OriginalUri,
+) -> Result<impl IntoResponse, ResourceError> {
+    info!("{:?}", uri);
+    let (responder_tx, responder_rx) = oneshot::channel();
+    let command = GetAllCommand {
+        path: "/api/v1/artifacts".into(),
+        artifacts: app.config.artifacts.clone(),
+        responder: responder_tx,
+    };
+
+    // app.command_tx
+    //     .send(Command::Artifact(ArtifactCommand::GetAll(command)))
+    //     .await
+    //     .map_err(|_err| ArtifactError::InternalServerError(uri.clone()))?;
+
+    // match responder_rx.await {
+    //     Ok(artifacts) => return Ok(Json(artifacts)),
+    //     Err(_err) => return Err(ArtifactError::InternalServerError(uri).into()),
+    // };
+
+    match app
+        .command_tx
+        .send(Command::Artifact(ArtifactCommand::GetAll(command)))
+        .await
+    {
+        Ok(_) => match timeout(Duration::from_secs(1), responder_rx).await {
+            Ok(Ok(artifacts)) => Ok(Json(artifacts)),
+            Ok(Err(err)) => {
+                error!("{}", err);
+                return Err(ArtifactError::InternalServerError(uri.0).into());
+            }
+            Err(err) => {
+                error!("{}", err);
+                return Err(ArtifactError::TimeoutError(uri.0).into());
+            }
+        },
+        Err(err) => {
+            error!("{}", err);
+            return Err(ArtifactError::InternalServerError(uri.0).into());
+        }
+    }
+
+    // Json(artifacts)
 }
 
 #[utoipa::path(
@@ -74,9 +122,10 @@ pub async fn all_artifacts(State(app): State<Arc<AppState>>) -> impl IntoRespons
 #[tracing::instrument(level = tracing::Level::TRACE, skip_all)]
 pub async fn artifact_for_id(
     Path(artifact_id): Path<String>,
-    State(app): State<Arc<AppState>>,
+    State(app): State<Arc<App>>,
 ) -> Result<impl IntoResponse, ResourceError> {
     let artifact = app
+        .config
         .artifacts
         .iter()
         .find(|artifact| artifact.id == artifact_id);
@@ -99,7 +148,9 @@ pub enum ArtifactError {
     #[error("The artifact with the id={param} was not found.")]
     NotFoundWithParam { param: String, path: String },
     #[error("There was an internal server error. Please try again later.")]
-    InternalServerError(String),
+    InternalServerError(Uri),
+    #[error("The request took to long to respond. Aborting... Please try again later")]
+    TimeoutError(Uri),
 }
 
 impl From<ArtifactError> for ResourceError {
@@ -116,6 +167,9 @@ impl From<ArtifactError> for ResourceError {
                     .message(message)
                     .path(format!("{}", path).as_str())
             }
+            ArtifactError::TimeoutError(path) => ResourceError::new(StatusCode::REQUEST_TIMEOUT)
+                .message(message)
+                .path(format!("{}", path).as_str()),
         }
     }
 }

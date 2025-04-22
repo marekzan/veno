@@ -8,9 +8,8 @@ use axum::{
 };
 use thiserror::Error;
 use utoipa::OpenApi;
-use veno_core::app::AppState;
 
-use crate::resources::errors::ResourceError;
+use crate::{resources::errors::ResourceError, App};
 
 use super::model::NotifierResponse;
 
@@ -25,8 +24,9 @@ pub struct V1NotifiersApi;
         (status= OK, description = "Get all notifier configuration", body = Vec<NotifierResponse>)
     )
 )]
-pub async fn all_notifiers(State(app): State<Arc<AppState>>) -> impl IntoResponse {
+pub async fn all_notifiers(State(app): State<Arc<App>>) -> impl IntoResponse {
     let notifiers: Vec<NotifierResponse> = app
+        .config
         .notifiers
         .iter()
         .map(|notifier| NotifierResponse::from(notifier.clone()))
@@ -43,9 +43,10 @@ pub async fn all_notifiers(State(app): State<Arc<AppState>>) -> impl IntoRespons
 )]
 pub async fn notifier_for_id(
     Path(notifier_id): Path<String>,
-    State(app): State<Arc<AppState>>,
+    State(app): State<Arc<App>>,
 ) -> Result<impl IntoResponse, ResourceError> {
     let notifier = app
+        .config
         .notifiers
         .iter()
         .find(|notifier| notifier.name == notifier_id);
@@ -70,8 +71,8 @@ pub async fn notifier_for_id(
         (status= OK, description = "Runs all notifiers")
     )
 )]
-pub async fn notify(State(app): State<Arc<AppState>>) -> impl IntoResponse {
-    app.notify().await;
+pub async fn notify(State(app): State<Arc<App>>) -> impl IntoResponse {
+    app.config.notify().await;
     StatusCode::OK
 }
 

@@ -10,7 +10,6 @@ use tracing::trace;
 use utoipa::OpenApi;
 use utoipa_redoc::{Redoc, Servable};
 use v1::v1_routes;
-use veno_core::app::AppState;
 
 use axum::{
     body::Body,
@@ -25,11 +24,13 @@ use axum::{
     Json, Router,
 };
 
+use crate::App;
+
 mod errors;
 mod openapi;
-mod v1;
+pub mod v1;
 
-pub fn serve_api(app: Arc<AppState>) -> Router {
+pub fn serve_api(app: Arc<App>) -> Router {
     Router::new()
         .merge(Redoc::with_url("/redoc", ApiDoc::openapi()))
         .route("/health", get(health_handler))

@@ -6,11 +6,10 @@ use tokio::signal::{
     unix::{self, SignalKind},
 };
 use tracing::info;
-use veno_core::app::AppState;
 
-use crate::resources::serve_api;
+use crate::{resources::serve_api, App};
 
-pub async fn start(app: Arc<AppState>) -> Result<()> {
+pub async fn start(app: Arc<App>) -> Result<()> {
     info!("Starting server...");
     let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
     axum::serve(listener, serve_api(app).into_make_service())
