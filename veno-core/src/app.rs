@@ -35,6 +35,8 @@ impl AppState {
                 .filter(|artifact| notifier.artifact_ids.contains(&artifact.id))
                 .collect::<Vec<&Artifact>>();
 
+            // TODO this is currently checking artifacts multiple times if multiple notifiers reference the same artifact.
+            // It would be better to check all artifacts in the beginning and then match on the checked_artifacts.
             let checked_artifacts = Self::check_artifacts(matched_artifacts).await;
 
             let notification = generate_notification(&checked_artifacts);

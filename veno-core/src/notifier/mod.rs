@@ -31,6 +31,7 @@ pub enum Sink {
     Webhook(WebhookSink),
 }
 
+// TODO this could be either fire and forget and log errors or get a result and make a response but then use a join_all
 impl Sink {
     pub async fn send(&self, notification: &str) {
         match self {
