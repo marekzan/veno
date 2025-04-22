@@ -37,7 +37,7 @@ impl AppState {
 
             let checked_artifacts = Self::check_artifacts(matched_artifacts).await;
 
-            let notification = generate_notification(&checked_artifacts).await;
+            let notification = generate_notification(&checked_artifacts);
             notifier.sink.send(&notification).await;
         }
     }
@@ -66,7 +66,7 @@ impl AppState {
     }
 }
 
-async fn generate_notification(artifacts: &Vec<(&Artifact, Result<Option<String>>)>) -> String {
+fn generate_notification(artifacts: &Vec<(&Artifact, Result<Option<String>>)>) -> String {
     let mut messages: Vec<String> = vec![];
 
     for (artifact, result) in artifacts {
