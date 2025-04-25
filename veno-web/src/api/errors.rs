@@ -4,7 +4,7 @@ use tracing::error;
 use utoipa::ToSchema;
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize, ToSchema)]
-pub struct ResourceError {
+pub struct ApiError {
     pub code: u16,
     pub kind: String,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -13,7 +13,7 @@ pub struct ResourceError {
     pub path: Option<String>,
 }
 
-impl ResourceError {
+impl ApiError {
     pub fn new(status_code: StatusCode) -> Self {
         let kind = match status_code.canonical_reason() {
             Some(reason) => reason.to_owned(),
@@ -37,13 +37,13 @@ impl ResourceError {
     }
 }
 
-impl From<StatusCode> for ResourceError {
+impl From<StatusCode> for ApiError {
     fn from(status_code: StatusCode) -> Self {
         Self::new(status_code)
     }
 }
 
-impl IntoResponse for ResourceError {
+impl IntoResponse for ApiError {
     fn into_response(self) -> axum::response::Response {
         error!("Error response: {:?}", self);
         let status_code =
