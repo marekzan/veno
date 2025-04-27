@@ -29,7 +29,6 @@ pub struct V1ArtifactsApi;
         (status= INTERNAL_SERVER_ERROR, description = "If during the check a server error occurs", body = ApiError)
     )
 )]
-#[tracing::instrument(level = tracing::Level::TRACE, skip_all)]
 pub async fn check_versions(
     version: ApiVersion,
     original_uri: OriginalUri,
@@ -56,7 +55,6 @@ pub async fn check_versions(
         (status= OK, description = "Get all artifact configurations", body = Vec<ArtifactResponse>)
     )
 )]
-#[tracing::instrument(level = tracing::Level::TRACE, skip_all)]
 pub async fn all_artifacts(
     version: ApiVersion,
     State(app): State<Arc<AppState>>,
@@ -78,7 +76,6 @@ pub async fn all_artifacts(
         (status= NOT_FOUND, description = "Returns not_found if the artifact_id had no match", body = ApiError),
     )
 )]
-#[tracing::instrument(level = tracing::Level::TRACE, skip_all)]
 pub async fn artifact_for_id(
     version: ApiVersion,
     original_uri: OriginalUri,
@@ -102,6 +99,17 @@ pub async fn artifact_for_id(
         }
         .into()),
     }
+}
+
+// FIX this is ugly! i think we need to put actions like these under ../actions/
+// this also makes the intention clearer and the endpoint more understandable for the caller
+pub async fn artifact_for_id_check_wrapper(
+    version: ApiVersion,
+    original_uri: OriginalUri,
+    State(app): State<Arc<AppState>>,
+) -> Result<impl IntoResponse, ApiError> {
+    let path_params = Path((version.to_string(), "check".to_string()));
+    artifact_for_id(version, original_uri, path_params, State(app)).await
 }
 
 #[derive(Debug, Error)]
