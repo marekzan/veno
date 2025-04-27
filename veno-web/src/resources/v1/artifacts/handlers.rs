@@ -91,7 +91,7 @@ pub async fn all_artifacts(
         .send(Command::Artifact(ArtifactCommand::GetAll(command)))
         .await
     {
-        Ok(_) => match timeout(Duration::from_secs(1), responder_rx).await {
+        Ok(_) => match timeout(Duration::from_secs(10), responder_rx).await {
             Ok(Ok(artifacts)) => Ok(Json(artifacts)),
             Ok(Err(err)) => {
                 error!("{}", err);
