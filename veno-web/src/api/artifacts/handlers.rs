@@ -1,16 +1,18 @@
 use std::sync::Arc;
 
-use crate::resources::errors::ResourceError;
 use axum::{
-    extract::{Path, State},
+    extract::{OriginalUri, Path, State},
     http::StatusCode,
     response::IntoResponse,
     Json,
 };
 use serde_json::json;
 use thiserror::Error;
+use tracing::trace;
 use utoipa::OpenApi;
 use veno_core::app::AppState;
+
+use crate::api::{errors::ApiError, version::ApiVersion};
 
 use super::{model::ArtifactResponse, service::check_all_artifacts};
 
@@ -24,13 +26,16 @@ pub struct V1ArtifactsApi;
     responses(
         (status= OK, description = "Returns a set of checked artifacts with its new versions if there are any.", body = ArtifactResponse),
         (status= OK, description = "Retursn a message if there are no new versions", body = serde_json::Value),
-        (status= INTERNAL_SERVER_ERROR, description = "If during the check a server error occurs", body = ResourceError)
+        (status= INTERNAL_SERVER_ERROR, description = "If during the check a server error occurs", body = ApiError)
     )
 )]
 #[tracing::instrument(level = tracing::Level::TRACE, skip_all)]
 pub async fn check_versions(
+    version: ApiVersion,
+    original_uri: OriginalUri,
     State(app): State<Arc<AppState>>,
-) -> Result<impl IntoResponse, ResourceError> {
+) -> Result<impl IntoResponse, ApiError> {
+    trace!("Using API version: {}", version);
     let response = check_all_artifacts(&app).await;
     match response {
         Ok(Some(new_versions)) => return Ok(Json(new_versions).into_response()),
@@ -40,9 +45,7 @@ pub async fn check_versions(
             )
             .into_response())
         }
-        Err(_err) => {
-            Err(ArtifactError::InternalServerError("/api/v1/artifacts/check".into()).into())
-        }
+        Err(_err) => Err(ArtifactError::InternalServerError(original_uri.path()).into()),
     }
 }
 
@@ -54,7 +57,11 @@ pub async fn check_versions(
     )
 )]
 #[tracing::instrument(level = tracing::Level::TRACE, skip_all)]
-pub async fn all_artifacts(State(app): State<Arc<AppState>>) -> impl IntoResponse {
+pub async fn all_artifacts(
+    version: ApiVersion,
+    State(app): State<Arc<AppState>>,
+) -> impl IntoResponse {
+    trace!("Using API version: {}", version);
     let artifacts: Vec<ArtifactResponse> = app
         .artifacts
         .iter()
@@ -68,14 +75,17 @@ pub async fn all_artifacts(State(app): State<Arc<AppState>>) -> impl IntoRespons
     path="/{artifact_id}",
     responses(
         (status= OK, description = "Get a specific artifact with id = artifact_id", body = ArtifactResponse),
-        (status= NOT_FOUND, description = "Returns not_found if the artifact_id had no match", body = ResourceError),
+        (status= NOT_FOUND, description = "Returns not_found if the artifact_id had no match", body = ApiError),
     )
 )]
 #[tracing::instrument(level = tracing::Level::TRACE, skip_all)]
 pub async fn artifact_for_id(
-    Path(artifact_id): Path<String>,
+    version: ApiVersion,
+    original_uri: OriginalUri,
+    Path((_version, artifact_id)): Path<(String, String)>,
     State(app): State<Arc<AppState>>,
-) -> Result<impl IntoResponse, ResourceError> {
+) -> Result<impl IntoResponse, ApiError> {
+    trace!("Using API version: {}", version);
     let artifact = app
         .artifacts
         .iter()
@@ -86,35 +96,33 @@ pub async fn artifact_for_id(
             let response_boddy = ArtifactResponse::from(artifact.clone());
             Ok((StatusCode::OK, Json(response_boddy)).into_response())
         }
-        None => Err(ArtifactError::NotFoundWithParam {
+        None => Err(ArtifactError::NotFoundParam {
             param: artifact_id.clone(),
-            path: format!("/api/v1/artifacts/{artifact_id}"),
+            path: original_uri.path(),
         }
         .into()),
     }
 }
 
 #[derive(Debug, Error)]
-pub enum ArtifactError {
+pub enum ArtifactError<'a> {
     #[error("The artifact with the id={param} was not found.")]
-    NotFoundWithParam { param: String, path: String },
+    NotFoundParam { param: String, path: &'a str },
     #[error("There was an internal server error. Please try again later.")]
-    InternalServerError(String),
+    InternalServerError(&'a str),
 }
 
-impl From<ArtifactError> for ResourceError {
+impl<'a> From<ArtifactError<'a>> for ApiError {
     fn from(err: ArtifactError) -> Self {
         let message = err.to_string();
         match err {
-            ArtifactError::NotFoundWithParam { param: _, path } => {
-                ResourceError::new(StatusCode::NOT_FOUND)
-                    .message(message)
-                    .path(format!("{}", path).as_str())
-            }
+            ArtifactError::NotFoundParam { param: _, path } => ApiError::new(StatusCode::NOT_FOUND)
+                .message(message)
+                .path(path),
             ArtifactError::InternalServerError(path) => {
-                ResourceError::new(StatusCode::INTERNAL_SERVER_ERROR)
+                ApiError::new(StatusCode::INTERNAL_SERVER_ERROR)
                     .message(message)
-                    .path(format!("{}", path).as_str())
+                    .path(path)
             }
         }
     }

@@ -8,7 +8,7 @@ use tokio::signal::{
 use tracing::info;
 use veno_core::app::AppState;
 
-use crate::resources::serve_api;
+use crate::api::serve_api;
 
 pub async fn start(app: Arc<AppState>) -> Result<()> {
     info!("Starting server...");

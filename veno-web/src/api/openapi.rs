@@ -1,6 +1,6 @@
-use crate::resources::v1::artifacts::handlers::V1ArtifactsApi;
-use crate::resources::v1::notifiers::handlers::V1NotifiersApi;
 use utoipa::OpenApi;
+
+use crate::api::{artifacts::handlers::V1ArtifactsApi, notifiers::handlers::V1NotifiersApi};
 
 #[derive(OpenApi)]
 #[openapi(

@@ -75,8 +75,8 @@ fn generate_notification(artifacts: &Vec<(&Artifact, Result<Option<String>>)>) -
         match result {
             Ok(Some(new_version)) => {
                 let message = match &artifact.message_prefix {
-                    Some(prefix) => create_custom_message(&prefix, &artifact.name, &new_version),
-                    None => create_default_message(&artifact.name, &new_version),
+                    Some(prefix) => create_custom_message(prefix, &artifact.name, new_version),
+                    None => create_default_message(&artifact.name, new_version),
                 };
                 messages.push(message);
             }

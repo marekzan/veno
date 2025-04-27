@@ -1,3 +1,6 @@
+mod api;
+mod server;
+
 use std::{env, sync::Arc};
 
 use anyhow::Result;
@@ -5,9 +8,6 @@ use tracing::{error, level_filters::LevelFilter};
 use veno_core::app::AppState;
 
 use clap::Parser;
-
-mod resources;
-mod server;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]

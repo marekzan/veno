@@ -1,16 +1,17 @@
 use std::sync::Arc;
 
 use axum::{
-    extract::{Path, State},
+    extract::{OriginalUri, Path, State},
     http::StatusCode,
     response::IntoResponse,
     Json,
 };
 use thiserror::Error;
+use tracing::trace;
 use utoipa::OpenApi;
 use veno_core::app::AppState;
 
-use crate::resources::errors::ResourceError;
+use crate::api::{errors::ApiError, version::ApiVersion};
 
 use super::model::NotifierResponse;
 
@@ -25,7 +26,11 @@ pub struct V1NotifiersApi;
         (status= OK, description = "Get all notifier configuration", body = Vec<NotifierResponse>)
     )
 )]
-pub async fn all_notifiers(State(app): State<Arc<AppState>>) -> impl IntoResponse {
+pub async fn all_notifiers(
+    version: ApiVersion,
+    State(app): State<Arc<AppState>>,
+) -> impl IntoResponse {
+    trace!("Using API version: {}", version);
     let notifiers: Vec<NotifierResponse> = app
         .notifiers
         .iter()
@@ -42,9 +47,12 @@ pub async fn all_notifiers(State(app): State<Arc<AppState>>) -> impl IntoRespons
     )
 )]
 pub async fn notifier_for_id(
-    Path(notifier_id): Path<String>,
+    version: ApiVersion,
+    original_uri: OriginalUri,
+    Path((_version, notifier_id)): Path<(String, String)>,
     State(app): State<Arc<AppState>>,
-) -> Result<impl IntoResponse, ResourceError> {
+) -> Result<impl IntoResponse, ApiError> {
+    trace!("Using API version: {}", version);
     let notifier = app
         .notifiers
         .iter()
@@ -55,9 +63,9 @@ pub async fn notifier_for_id(
             let response_boddy = NotifierResponse::from(notifier.clone());
             Ok((StatusCode::OK, Json(response_boddy)).into_response())
         }
-        None => Err(NotifierError::NotFoundWithParam {
+        None => Err(NotifierError::NotFoundParam {
             param: notifier_id.clone(),
-            path: format!("/api/v1/notifiers/{notifier_id}"),
+            path: original_uri.path(),
         }
         .into()),
     }
@@ -70,26 +78,25 @@ pub async fn notifier_for_id(
         (status= OK, description = "Runs all notifiers")
     )
 )]
-pub async fn notify(State(app): State<Arc<AppState>>) -> impl IntoResponse {
+pub async fn notify(version: ApiVersion, State(app): State<Arc<AppState>>) -> impl IntoResponse {
+    trace!("Using API version: {}", version);
     app.notify().await;
     StatusCode::OK
 }
 
 #[derive(Debug, Error)]
-pub enum NotifierError {
+pub enum NotifierError<'a> {
     #[error("The Notifier with the id={param} was not found.")]
-    NotFoundWithParam { param: String, path: String },
+    NotFoundParam { param: String, path: &'a str },
 }
 
-impl From<NotifierError> for ResourceError {
+impl<'a> From<NotifierError<'a>> for ApiError {
     fn from(err: NotifierError) -> Self {
         let message = err.to_string();
         match err {
-            NotifierError::NotFoundWithParam { param: _, path } => {
-                ResourceError::new(StatusCode::NOT_FOUND)
-                    .message(message)
-                    .path(format!("{}", path).as_str())
-            }
+            NotifierError::NotFoundParam { param: _, path } => ApiError::new(StatusCode::NOT_FOUND)
+                .message(message)
+                .path(path),
         }
     }
 }
