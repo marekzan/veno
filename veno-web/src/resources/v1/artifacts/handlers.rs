@@ -1,4 +1,4 @@
-use std::{fmt::Display, sync::Arc, time::Duration};
+use std::{sync::Arc, time::Duration};
 
 use crate::{
     commands::{
@@ -16,11 +16,8 @@ use axum::{
 };
 use serde_json::json;
 use thiserror::Error;
-use tokio::{
-    sync::oneshot,
-    time::{timeout, Timeout},
-};
-use tracing::{error, info};
+use tokio::{sync::oneshot, time::timeout};
+use tracing::error;
 use utoipa::OpenApi;
 
 use super::{model::ArtifactResponse, service::check_all_artifacts};
@@ -40,7 +37,7 @@ pub struct V1ArtifactsApi;
 )]
 #[tracing::instrument(level = tracing::Level::TRACE, skip_all)]
 pub async fn check_versions(
-    State(app): State<Arc<App>>,
+    State(app): State<Arc<App<'_>>>,
     uri: OriginalUri,
 ) -> Result<impl IntoResponse, ResourceError> {
     let response = check_all_artifacts(&app.config).await;
@@ -52,7 +49,7 @@ pub async fn check_versions(
             )
             .into_response())
         }
-        Err(_err) => Err(ArtifactError::InternalServerError(uri.0).into()),
+        Err(_err) => Err(ArtifactError::InternalServerError(&uri.0).into()),
     }
 }
 
@@ -65,50 +62,34 @@ pub async fn check_versions(
 )]
 #[tracing::instrument(level = tracing::Level::TRACE, skip_all)]
 pub async fn all_artifacts(
-    State(app): State<Arc<App>>,
+    State(app): State<Arc<App<'_>>>,
     uri: OriginalUri,
 ) -> Result<impl IntoResponse, ResourceError> {
-    info!("{:?}", uri);
     let (responder_tx, responder_rx) = oneshot::channel();
     let command = GetAllCommand {
-        path: "/api/v1/artifacts".into(),
         artifacts: app.config.artifacts.clone(),
         responder: responder_tx,
     };
 
-    // app.command_tx
-    //     .send(Command::Artifact(ArtifactCommand::GetAll(command)))
-    //     .await
-    //     .map_err(|_err| ArtifactError::InternalServerError(uri.clone()))?;
-
-    // match responder_rx.await {
-    //     Ok(artifacts) => return Ok(Json(artifacts)),
-    //     Err(_err) => return Err(ArtifactError::InternalServerError(uri).into()),
-    // };
-
-    match app
-        .command_tx
+    app.command_tx
         .send(Command::Artifact(ArtifactCommand::GetAll(command)))
         .await
-    {
-        Ok(_) => match timeout(Duration::from_secs(10), responder_rx).await {
-            Ok(Ok(artifacts)) => Ok(Json(artifacts)),
-            Ok(Err(err)) => {
-                error!("{}", err);
-                return Err(ArtifactError::InternalServerError(uri.0).into());
-            }
-            Err(err) => {
-                error!("{}", err);
-                return Err(ArtifactError::TimeoutError(uri.0).into());
-            }
-        },
+        .map_err(|err| {
+            tracing::error!("{}", err);
+            ArtifactError::InternalServerError(&uri.0)
+        })?;
+
+    match timeout(Duration::from_secs(3), responder_rx).await {
+        Ok(Ok(artifacts)) => Ok(Json(artifacts)),
+        Ok(Err(err)) => {
+            error!("{}", err);
+            return Err(ArtifactError::InternalServerError(&uri.0).into());
+        }
         Err(err) => {
             error!("{}", err);
-            return Err(ArtifactError::InternalServerError(uri.0).into());
+            return Err(ArtifactError::TimeoutError(uri.0).into());
         }
     }
-
-    // Json(artifacts)
 }
 
 #[utoipa::path(
@@ -122,7 +103,7 @@ pub async fn all_artifacts(
 #[tracing::instrument(level = tracing::Level::TRACE, skip_all)]
 pub async fn artifact_for_id(
     Path(artifact_id): Path<String>,
-    State(app): State<Arc<App>>,
+    State(app): State<Arc<App<'_>>>,
 ) -> Result<impl IntoResponse, ResourceError> {
     let artifact = app
         .config
@@ -133,7 +114,7 @@ pub async fn artifact_for_id(
     match artifact {
         Some(artifact) => {
             let response_boddy = ArtifactResponse::from(artifact.clone());
-            Ok((StatusCode::OK, Json(response_boddy)).into_response())
+            Ok(Json(response_boddy))
         }
         None => Err(ArtifactError::NotFoundWithParam {
             param: artifact_id.clone(),
@@ -144,16 +125,16 @@ pub async fn artifact_for_id(
 }
 
 #[derive(Debug, Error)]
-pub enum ArtifactError {
+pub enum ArtifactError<'a> {
     #[error("The artifact with the id={param} was not found.")]
     NotFoundWithParam { param: String, path: String },
     #[error("There was an internal server error. Please try again later.")]
-    InternalServerError(Uri),
+    InternalServerError(&'a Uri),
     #[error("The request took to long to respond. Aborting... Please try again later")]
     TimeoutError(Uri),
 }
 
-impl From<ArtifactError> for ResourceError {
+impl<'a> From<ArtifactError<'a>> for ResourceError {
     fn from(err: ArtifactError) -> Self {
         let message = err.to_string();
         match err {

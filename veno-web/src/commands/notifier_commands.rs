@@ -5,21 +5,18 @@ use crate::resources::v1::notifiers::model::NotifierResponse;
 
 #[derive(Debug)]
 pub struct GetAllCommand {
-    path: String,
     notifier: Vec<Notifier>,
     responder: Sender<Result<Vec<NotifierResponse>, CommandError>>,
 }
 
 #[derive(Debug)]
 pub struct NotifyCommand {
-    path: String,
     notifier: Vec<Notifier>,
     responder: Sender<Result<Vec<NotifierResponse>, CommandError>>,
 }
 
 #[derive(Debug)]
 pub struct GetByIdCommand {
-    path: String,
     notifier: Vec<Notifier>,
     responder: Sender<Result<Vec<NotifierResponse>, CommandError>>,
 }

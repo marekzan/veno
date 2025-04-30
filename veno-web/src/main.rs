@@ -22,9 +22,9 @@ struct Cli {
     log_level: Option<String>,
 }
 
-struct App {
+struct App<'a> {
     config: AppState,
-    command_tx: Sender<Command>,
+    command_tx: Sender<Command<'a>>,
 }
 
 #[tokio::main]
