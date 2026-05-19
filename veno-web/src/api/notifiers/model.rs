@@ -20,6 +20,8 @@ pub enum SinkDto {
     GoogleChat(GoogleChatSink),
     #[serde(rename = "webhook")]
     Webhook(WebhookSink),
+    #[serde(rename = "console")]
+    Console(ConsoleSink),
 }
 
 #[derive(Debug, Clone, Serialize, ToSchema)]
@@ -45,6 +47,9 @@ pub struct GoogleChatSink {
 pub struct WebhookSink {
     pub webhook: String,
 }
+
+#[derive(Debug, Clone, Serialize, ToSchema)]
+pub struct ConsoleSink {}
 
 impl From<Notifier> for NotifierResponse {
     fn from(value: Notifier) -> Self {
@@ -75,6 +80,7 @@ impl From<Sink> for SinkDto {
             Sink::Webhook(webhook) => SinkDto::Webhook(WebhookSink {
                 webhook: webhook.webhook,
             }),
+            Sink::Console(_) => SinkDto::Console(ConsoleSink {}),
         }
     }
 }
