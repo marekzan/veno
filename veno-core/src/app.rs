@@ -18,9 +18,16 @@ pub struct AppState {
 impl AppState {
     pub fn init(file_path: &str) -> Result<Self> {
         let app_config = AppConfig::load(file_path)?;
-        let app_state = app_config
+        let mut app_state: AppState = app_config
             .try_deserialize()
             .context("Could not deserialize app config")?;
+
+        for notifier in &mut app_state.notifiers {
+            if notifier.artifact_ids.is_empty() {
+                notifier.artifact_ids = app_state.artifacts.iter().map(|x| x.id.clone()).collect();
+            }
+        }
+
         Ok(app_state)
     }
 

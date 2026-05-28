@@ -17,6 +17,7 @@ static DEFAULT_MESSAGE_PREFIX: &str = "New version available for";
 pub struct Notifier {
     pub name: String,
     pub sink: Sink,
+    #[serde(default)]
     pub artifact_ids: Vec<String>,
 }
 
