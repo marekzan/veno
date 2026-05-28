@@ -1,8 +1,10 @@
+pub mod console;
 pub mod email;
 pub mod google_chat;
 pub mod slack;
 pub mod webhook;
 
+use console::ConsoleSink;
 use email::EmailSink;
 use google_chat::GoogleChatSink;
 use serde::Deserialize;
@@ -30,6 +32,8 @@ pub enum Sink {
     GoogleChat(GoogleChatSink),
     #[serde(rename = "webhook")]
     Webhook(WebhookSink),
+    #[serde(rename = "console")]
+    Console(ConsoleSink),
 }
 
 // TODO this could be either fire and forget and log errors or get a result and make a response but then use a join_all
@@ -40,6 +44,7 @@ impl Sink {
             Sink::Email(sink) => sink.send(notification).await,
             Sink::GoogleChat(sink) => sink.send(notification).await,
             Sink::Webhook(sink) => sink.send(notification).await,
+            Sink::Console(sink) => sink.send(notification).await,
         }
     }
 }
